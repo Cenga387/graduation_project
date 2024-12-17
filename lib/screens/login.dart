@@ -30,14 +30,12 @@ class _LoginPageState extends State<LoginPage> {
 
       if (mounted) {
         setState(() {
-          _isLoading =  false;
+          _isLoading = false;
         });
 
         Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(
-            builder: (context) =>
-              const HomePage()),
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       }
     } catch (e) {
@@ -46,17 +44,16 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'))
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
 
   @override
-  Widget build (BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
-            body: Column(
+      body: Column(
         children: [
           Container(
             color: Colors.grey[400],
@@ -182,30 +179,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton.icon(
-                        onPressed: _isLoading ? null : null,
-                        icon: Image.asset(
-                          'assets/google_logo.png',
-                          height: 24,
-                        ),
-                        label: const Text(
-                          'Sign in with Google',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(36),
-                          ),
-                          side: BorderSide(color: Colors.grey.shade300),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
