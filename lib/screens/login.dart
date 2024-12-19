@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/screens/home.dart';
+import 'package:graduation_project/screens/main_navigation.dart';
 import 'package:graduation_project/screens/register.dart';
 import 'package:graduation_project/services/auth_service.dart';
 
@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false; // To handle loading state
+  bool _isLoading = false; 
 
   void login() async {
     final email = _emailController.text;
@@ -34,8 +34,10 @@ class _LoginPageState extends State<LoginPage> {
         });
 
         Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          context, 
+          MaterialPageRoute(
+            builder: (context) =>
+              const MainNavigation()),
         );
       }
     } catch (e) {
