@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:graduation_project/screens/main_navigation.dart';
 import '../screens/welcome.dart';
-import '../screens/home.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthGate extends StatelessWidget {
@@ -23,7 +23,7 @@ class AuthGate extends StatelessWidget {
 
         if (session != null) {
           //if session is not null then go to home page
-          return const HomePage();
+          return const MainNavigation();
         } else {
           // SignInScreen();
           return const WelcomeScreen();
