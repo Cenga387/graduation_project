@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false; 
+  bool _isLoading = false;
 
   void login() async {
     final email = _emailController.text;
@@ -34,10 +34,8 @@ class _LoginPageState extends State<LoginPage> {
         });
 
         Navigator.pushReplacement(
-          context, 
-          MaterialPageRoute(
-            builder: (context) =>
-              const MainNavigation()),
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
         );
       }
     } catch (e) {
@@ -90,11 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(36),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(36),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
@@ -114,11 +113,12 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(36),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(36),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(15)),
                           borderSide: BorderSide(color: Colors.grey.shade300),
                         ),
                       ),
@@ -137,8 +137,8 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: _isLoading ? null : login,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF51DB88),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                         ),
                         child: _isLoading
