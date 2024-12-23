@@ -1,24 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/screens/detailed_post.dart';
 
-class PostCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final String dateTime;
+class PostCard extends StatefulWidget {
   final String postId;
 
   const PostCard({
-    Key? key,
-    required this.title,
-    required this.description,
-    required this.dateTime,
+    super.key,
     required this.postId,
-  }) : super(key: key);
+  });
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  String title = '';
+  String description = '';
+  int upvotes = 0;
+  int downvotes = 0;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPost();
+    _fetchVotes();
+  }
+
+  Future<void> _fetchPost() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('posts')
+          .select('title, description') // Use correct column names
+          .eq('id', widget.postId)
+          .single();
+
+      setState(() {
+        title = response['title'];
+        description = response['description'];
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching post details: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchVotes() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('posts')
+          .select('upvotes, downvotes')
+          .eq('id', widget.postId)
+          .single();
+
+      setState(() {
+        upvotes = response['upvotes'];
+        downvotes = response['downvotes'];
+      });
+    } catch (e) {
+      debugPrint('Error fetching votes: $e');
+    }
+  }
+
+  Future<void> _updateVote(bool isUpvote) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final field = isUpvote ? 'upvotes' : 'downvotes';
+
+      // Update the database
+      await supabase
+          .from('posts')
+          .update({field: isUpvote ? upvotes + 1 : downvotes + 1}).eq(
+              'id', widget.postId);
+
+      // Update the local state
+      setState(() {
+        if (isUpvote) {
+          upvotes++;
+        } else {
+          downvotes++;
+        }
+      });
+    } catch (e) {
+      debugPrint('Error updating votes: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Card(
-      color: Colors.blue,
+      color: const Color(0xFF005597),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.all(12),
       child: Padding(
@@ -44,33 +125,26 @@ class PostCard extends StatelessWidget {
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: 8),
-            // Date and Time
-            Text(
-              dateTime,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-              ),
-            ),
             const SizedBox(height: 16),
             // Actions Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Upvote and Downvote buttons
+                // Upvote and Downvote buttons with score
                 Row(
                   children: [
-                    VoteButton(
-                      icon: Icons.arrow_upward,
-                      isUpvote: true,
-                      postId: postId,
+                    IconButton(
+                      icon: const Icon(Icons.arrow_upward, color: Colors.white),
+                      onPressed: () => _updateVote(true),
                     ),
-                    const SizedBox(width: 8),
-                    VoteButton(
-                      icon: Icons.arrow_downward,
-                      isUpvote: false,
-                      postId: postId,
+                    Text(
+                      '${upvotes - downvotes}',
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    IconButton(
+                      icon:
+                          const Icon(Icons.arrow_downward, color: Colors.white),
+                      onPressed: () => _updateVote(false),
                     ),
                   ],
                 ),
@@ -81,7 +155,7 @@ class PostCard extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            DetailedPostScreen(postId: postId),
+                            DetailedPostScreen(postId: widget.postId),
                       ),
                     );
                   },
@@ -100,93 +174,6 @@ class PostCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class VoteButton extends StatefulWidget {
-  final IconData icon;
-  final bool isUpvote;
-  final String postId;
-
-  const VoteButton({
-    Key? key,
-    required this.icon,
-    required this.isUpvote,
-    required this.postId,
-  }) : super(key: key);
-
-  @override
-  State<VoteButton> createState() => _VoteButtonState();
-}
-
-class _VoteButtonState extends State<VoteButton> {
-  bool isSelected = false;
-
-  void _updateVote() async {
-    // Replace this logic with Supabase integration
-    setState(() {
-      isSelected = !isSelected;
-    });
-
-    final supabase = Supabase.instance.client;
-    final field = widget.isUpvote ? 'upvotes' : 'downvotes';
-    await supabase
-        .from('posts')
-        .update({field: isSelected ? 1 : 0}).eq('id', widget.postId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _updateVote,
-      child: Icon(
-        widget.icon,
-        color: isSelected ? Colors.yellow : Colors.white,
-        size: 24,
-      ),
-    );
-  }
-}
-
-class DetailedPostScreen extends StatelessWidget {
-  final String postId;
-
-  const DetailedPostScreen({Key? key, required this.postId}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Implement the detailed post screen here
-    return Scaffold(
-      appBar: AppBar(title: const Text('Post Details')),
-      body: Center(child: Text('Details for post $postId')),
-    );
-  }
-}
-
-void main() async {
-  await Supabase.initialize(
-    url: 'YOUR_SUPABASE_URL',
-    anonKey: 'YOUR_SUPABASE_ANON_KEY',
-  );
-
-  runApp(const MaterialApp(home: SamplePostCard()));
-}
-
-class SamplePostCard extends StatelessWidget {
-  const SamplePostCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Post Card Example')),
-      body: PostCard(
-        title: 'Fortinet Lecture',
-        description:
-            'Lecture will be held in Red Amphitheatre on Friday, December 8th at 12AM',
-        dateTime: 'Friday, December 8th at 12AM',
-        postId: 'sample-post-id', // Replace with actual post ID from Supabase
       ),
     );
   }

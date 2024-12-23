@@ -16,12 +16,9 @@ class _HomePageState extends State<HomePage> {
     return const Scaffold(
       body: Column(
         children: [
-          PostCard(
-            title: 'Title',
-            description: 'Description',
-            dateTime: 'Date and Time',
-            postId: 'Post ID',
-          ),
+          PostCard(postId: '1'),
+          //PostCard(postId: '2'),
+          // PostCard(postId: '3'),
         ],
       ),
     );
