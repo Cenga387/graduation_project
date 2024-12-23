@@ -34,11 +34,9 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = false;
         });
         Navigator.pushAndRemoveUntil(
-          context, 
-          MaterialPageRoute(
-            builder: (context) =>
-              const MainNavigation()),
-            (Route<dynamic> route) => false,
+          context,
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
+          (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -65,9 +63,9 @@ class _LoginPageState extends State<LoginPage> {
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () {
                 Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WelcomeScreen()),
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const WelcomeScreen()),
                 );
               },
             ),
@@ -141,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : login,
                         style: ElevatedButton.styleFrom(
-
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),

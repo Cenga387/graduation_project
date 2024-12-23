@@ -249,7 +249,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: _isLoading ? null : signUp,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(36),
+                              borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                           child: _isLoading
