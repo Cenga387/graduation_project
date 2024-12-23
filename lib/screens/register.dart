@@ -16,6 +16,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final List<String> _faculties = ['FENS', 'FASS', 'FLW', 'FEDU', 'FBA'];
+  String _selectedFacultyController = '';
   bool _isLoading = false;
 
   @override
@@ -26,11 +28,13 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
   void signUp() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
+    final faculty = _selectedFacultyController;
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,8 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       _isLoading = true;
     });
-  
-       try {
+
+    try {
       // Sign up the user
       final response = await supabase.auth.signUp(
         email: email,
@@ -56,6 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
         await supabase.from('profile').insert({
           'user_id': userId,
           'username': username,
+          'faculty': faculty,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
         children: [
           Container(
             color: Colors.grey[400],
-            height: 40.0,
+            height: 20.0,
           ),
           AppBar(
             backgroundColor: Colors.transparent,
@@ -208,6 +213,33 @@ class _RegisterPageState extends State<RegisterPage> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 20),
+                      DropdownButtonFormField<String>(
+                        value: _selectedFacultyController.isEmpty
+                            ? null
+                            : _selectedFacultyController,
+                        decoration: InputDecoration(
+                          labelText: 'Faculty',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(36),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(36),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                        ),
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedFacultyController = newValue!;
+                          });
+                        },
+                        items: _faculties
+                            .map((faculty) => DropdownMenuItem(
+                                  value: faculty,
+                                  child: Text(faculty),
+                                ))
+                            .toList(),
+                      ),
                       const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
@@ -268,5 +300,4 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-
 }
