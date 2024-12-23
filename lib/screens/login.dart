@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/screens/main_navigation.dart';
 import 'package:graduation_project/screens/register.dart';
 import 'package:graduation_project/services/auth_service.dart';
+import 'package:graduation_project/screens/welcome.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,11 +34,12 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading = false;
         });
 
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context, 
           MaterialPageRoute(
             builder: (context) =>
               const MainNavigation()),
+            (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -57,16 +59,18 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            color: Colors.grey[400],
-            height: 40.0,
-          ),
           AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WelcomeScreen()),
+                );
+              },
             ),
           ),
           Expanded(
@@ -136,7 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF51DB88),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(36),
                           ),
@@ -153,7 +156,6 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text(
                                 'Login',
                                 style: TextStyle(
-                                  color: Colors.black,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
