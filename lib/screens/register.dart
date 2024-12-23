@@ -122,11 +122,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         controller: _usernameController,
                         decoration: InputDecoration(
                           labelText: 'Username',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
@@ -143,11 +144,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
@@ -167,11 +169,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
@@ -191,11 +194,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
@@ -216,11 +220,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             : _selectedFacultyController,
                         decoration: InputDecoration(
                           labelText: 'Faculty',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(36),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
                             borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                         ),
