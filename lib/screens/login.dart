@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/screens/main_navigation.dart';
 import 'package:graduation_project/screens/register.dart';
 import 'package:graduation_project/services/auth_service.dart';
+import 'package:graduation_project/screens/welcome.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,10 +33,12 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainNavigation()),
+        Navigator.pushAndRemoveUntil(
+          context, 
+          MaterialPageRoute(
+            builder: (context) =>
+              const MainNavigation()),
+            (Route<dynamic> route) => false,
         );
       }
     } catch (e) {
@@ -55,16 +58,18 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            color: Colors.grey[400],
-            height: 40.0,
-          ),
           AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WelcomeScreen()),
+                );
+              },
             ),
           ),
           Expanded(
@@ -136,9 +141,9 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : login,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF51DB88),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(15)),
+
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
                         ),
                         child: _isLoading
@@ -153,7 +158,6 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text(
                                 'Login',
                                 style: TextStyle(
-                                  color: Colors.black,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),

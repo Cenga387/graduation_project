@@ -60,6 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
         await supabase.from('profile').insert({
           'user_id': userId,
           'username': username,
+          'role': 'user',
           'faculty': faculty,
         });
 
@@ -90,13 +91,8 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Column(
         children: [
-          Container(
-            color: Colors.grey[400],
-            height: 20.0,
-          ),
           AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -252,7 +248,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : signUp,
                           style: ElevatedButton.styleFrom(
-                            //backgroundColor: const Color(0xFF51DB88),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(36),
                             ),
@@ -269,7 +264,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               : const Text(
                                   'Register',
                                   style: TextStyle(
-                                    color: Colors.black,
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),

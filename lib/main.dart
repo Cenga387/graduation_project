@@ -23,10 +23,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'IUS Hub',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF005597)),
         useMaterial3: true,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF005597), // Blue background
+            foregroundColor: Colors.white, // White text
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            backgroundColor: const Color(0xFF005597), // Blue background
+            foregroundColor: Colors.white, // White text
+          ),
+        ),
       ),
+
       home: const AuthGate(),
       routes: {
         '/welcome': (context) => const WelcomeScreen(),
