@@ -3,6 +3,7 @@ import 'services/auth_gate.dart';
 import 'screens/home.dart';
 import 'screens/login.dart';
 import 'screens/register.dart';
+import 'screens/create_post.dart';
 import 'package:flutter/material.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
+        '/create_post': (context) => const CreatePostScreen(),
       }
     );
   }
