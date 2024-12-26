@@ -64,29 +64,35 @@ class _RegisterPageState extends State<RegisterPage> {
           'faculty': faculty,
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Account created successfully!")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Account created successfully!")),
+          );
 
-        // Navigate back to login screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
-        );
+          // Navigate back to login screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginPage()),
+          );
+        }
       } else {
-        // throw response?.message ?? 'Unknown error';
         throw 'Unknown error';
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

@@ -11,12 +11,15 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage>{
-   Future<void> _signOut(BuildContext context) async {
+  Future<void> _signOut(BuildContext context) async {
     await Supabase.instance.client.auth.signOut();
 
-    // Navigate to the login screen or home screen after logout
-    Navigator.pushReplacementNamed(context, '/login');
+    if (context.mounted) {
+      // Navigate to the login screen or home screen after logout
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

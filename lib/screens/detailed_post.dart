@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class DetailedPostScreen extends StatelessWidget {
   final String postId;
 
-  const DetailedPostScreen({Key? key, required this.postId}) : super(key: key);
+  const DetailedPostScreen({super.key, required this.postId});
 
   @override
   Widget build(BuildContext context) {
