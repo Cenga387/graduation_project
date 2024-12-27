@@ -56,15 +56,20 @@ class _MainNavigationState extends State<MainNavigation> {
           .eq('user_id', userId)
           .single();
 
-      setState(() {
-        _userRole = response['role']; // Assign the role to the variable
-      });
+      if (mounted) {
+        setState(() {
+          _userRole = response['role']; // Assign the role to the variable
+        });
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
     }
   }
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -78,6 +83,7 @@ class _MainNavigationState extends State<MainNavigation> {
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
         title: Text(_titles[_selectedIndex]),
+        backgroundColor: const Color(0xFFF8F9FE),
         elevation: 0,
         actions: [
           if (_selectedIndex == 0 && _userRole == 'admin') // Add '+' button for admins on the Home page

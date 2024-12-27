@@ -3,9 +3,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
-
-  @override
-  _CreatePostScreenState createState() => _CreatePostScreenState();
+@override
+  State<StatefulWidget> createState() {
+    return _CreatePostScreenState();
+  }
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
@@ -25,17 +26,26 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'description': _descriptionController.text,
         'author_id': userId,
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Post created successfully!')));
-      Navigator.pop(context);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Post created successfully!')),
+        );
+        Navigator.pop(context); // Navigate back after successful operation
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error creating post: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating post: $e')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create Post')),
+      appBar: AppBar(title: const Text('Create Post')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -44,25 +54,25 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: const InputDecoration(labelText: 'Title'),
                 validator: (value) => value!.isEmpty ? 'Title is required' : null,
               ),
               TextFormField(
                 controller: _contentController,
-                decoration: InputDecoration(labelText: 'Content'),
+                decoration: const InputDecoration(labelText: 'Content'),
                 validator: (value) => value!.isEmpty ? 'Content is required' : null,
               ),
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
                 validator: (value) => value!.isEmpty ? 'Description is required' : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) _createPost();
                 },
-                child: Text('Create Post'),
+                child: const Text('Create Post'),
               ),
             ],
           ),
