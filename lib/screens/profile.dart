@@ -10,11 +10,12 @@ class ProfilePage extends StatefulWidget {
   }
 }
 
-class _ProfilePageState extends State<ProfilePage>{
-   Future<void> _signOut(BuildContext context) async {
+class _ProfilePageState extends State<ProfilePage> {
+  Future<void> _signOut(BuildContext context) async {
     await Supabase.instance.client.auth.signOut();
 
     // Navigate to the login screen or home screen after logout
+
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -22,7 +23,8 @@ class _ProfilePageState extends State<ProfilePage>{
   Widget build(BuildContext context) {
     return Scaffold(
       body: SizedBox(
-        child: ElevatedButton(onPressed: () => _signOut(context), child: const Text('Sign Out')),
+        child: ElevatedButton(
+            onPressed: () => _signOut(context), child: const Text('Sign Out')),
       ),
     );
   }

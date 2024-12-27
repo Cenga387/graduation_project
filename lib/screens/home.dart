@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/widgets/post_card.dart';
 
 class HomePage extends StatelessWidget {
-
   const HomePage({super.key});
 
   @override
@@ -12,10 +11,10 @@ class HomePage extends StatelessWidget {
         children: [
           PostCard(postId: '2'),
           //PostCard(postId: '2'),
-          //PostCard(postId: '3'),
+          PostCard(postId: '3'),
+          PostCard(postId: '4')
         ],
       ),
     );
   }
 }
-
