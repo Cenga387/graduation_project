@@ -20,7 +20,6 @@ class ProfilePage extends StatelessWidget {
       return null;
     }
 
-    // `response` now directly contains the data or error
     if (response is Map<String, dynamic>) {
       return response['username'] as String?;
     } else {
@@ -43,13 +42,11 @@ class ProfilePage extends StatelessWidget {
       body: Column(
         children: [
           const SizedBox(height: 40),
-          // Profile Info Section
           Container(
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             child: Column(
               children: [
-                // Profile Picture and Name
                 const CircleAvatar(
                   radius: 40,
                   backgroundImage: AssetImage('assets/oliver.jpg'),
@@ -89,7 +86,6 @@ class ProfilePage extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Email and Location
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -107,7 +103,6 @@ class ProfilePage extends StatelessWidget {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.location_on, size: 18, color: Colors.black54),
                     SizedBox(width: 5),
                     Text(
                       'Ciglane, Sarajevo',
@@ -120,31 +115,23 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           const Divider(thickness: 0.5, color: Colors.grey),
-
-          // Options Section
           Expanded(
             child: ListView(
               children: [
                 _buildProfileOption(
-                  icon: Icons.people_outline,
-                  text: 'Friend List',
-                  onTap: () {
-                    // Navigate to Friend List screen
-                  },
+                  icon: Icons.person,
+                  text: 'Profile',
+                  onTap: () {},
                 ),
                 _buildProfileOption(
-                  icon: Icons.history,
-                  text: 'Match History',
-                  onTap: () {
-                    // Navigate to Match History screen
-                  },
+                  icon: Icons.notifications,
+                  text: 'Notifications',
+                  onTap: () {},
                 ),
                 _buildProfileOption(
                   icon: Icons.edit,
                   text: 'Edit Profile',
-                  onTap: () {
-                    // Navigate to Edit Profile screen
-                  },
+                  onTap: () {},
                 ),
                 _buildProfileOption(
                   icon: Icons.logout,
@@ -161,7 +148,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  // Helper method to build each option in the profile screen
   Widget _buildProfileOption({
     required IconData icon,
     required String text,
