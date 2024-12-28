@@ -15,6 +15,7 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
 
   final _homeScreen = const HomePage();
@@ -70,7 +71,6 @@ class _MainNavigationState extends State<MainNavigation> {
     }
   }
 
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -80,13 +80,41 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey, // Assign the key to the Scaffold
+      drawer: _titles[_selectedIndex] == "Announcements"
+          ? Drawer(
+              child: ListView(
+                children: const [
+                  DrawerHeader(
+                    decoration: BoxDecoration(color: Colors.blue),
+                    child: Text(
+                      'Menu',
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                  ),
+                  // Add other menu items
+                ],
+              ),
+            )
+          : null,
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
         title: Text(_titles[_selectedIndex]),
         backgroundColor: const Color(0xFFF8F9FE),
         elevation: 0,
+        leading: _titles[_selectedIndex] == "Announcements"
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  _scaffoldKey.currentState
+                      ?.openDrawer(); // Access ScaffoldState
+                },
+              )
+            : null,
         actions: [
-          if (_selectedIndex == 0 && _userRole == 'admin') // Add '+' button for admins on the Home page
+          if (_selectedIndex == 0 &&
+              _userRole ==
+                  'admin') // Add '+' button for admins on the Home page
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {

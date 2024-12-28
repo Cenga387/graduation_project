@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/widgets/post_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+
 class HomePage extends StatefulWidget {
 
+
+ 
   const HomePage({super.key});
 
   @override 
@@ -57,6 +60,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -164,3 +168,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
