@@ -44,9 +44,11 @@ class _PostCardState extends State<PostCard> {
       });
     } catch (e) {
       debugPrint('Error fetching post details: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
