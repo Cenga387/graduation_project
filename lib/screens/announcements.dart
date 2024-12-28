@@ -12,7 +12,7 @@ class AnnouncementPage extends StatefulWidget {
 }
 
 class _AnnouncementPageState extends State<AnnouncementPage> {
-  Map<String, List<String>> categorizedPosts = {};
+  List<int> postIds = []; // List to store post IDs
   bool isLoading = true;
 
   @override
@@ -24,23 +24,16 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
   Future<void> _fetchPosts() async {
     try {
       final supabase = Supabase.instance.client;
-      final response = await supabase.from('posts').select('id, category');
+      final response = await supabase.from('posts').select('id');
 
       final data = response as List<dynamic>;
 
-      final Map<String, List<String>> postsByCategory = {};
-      for (var post in data) {
-        final String category = post['category'];
-        final int postId = post['id'];
-
-        if (!postsByCategory.containsKey(category)) {
-          postsByCategory[category] = [];
-        }
-        postsByCategory[category]?.add(postId.toString());
-      }
+      // Extract post IDs from the response
+      final List<int> fetchedPostIds =
+          data.map((post) => post['id'] as int).toList();
 
       setState(() {
-        categorizedPosts = postsByCategory;
+        postIds = fetchedPostIds;
         isLoading = false;
       });
     } catch (e) {
@@ -86,17 +79,8 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
                 ],
               ),
             ),
-            // Announcements Section
-            if (categorizedPosts.containsKey('announcement'))
-              _buildSection(context, 'Announcements', 'announcement'),
-
-            // Events Section
-            if (categorizedPosts.containsKey('event'))
-              _buildSection(context, 'Events', 'event'),
-
-            // Other Categories (Add as Needed)
-            if (categorizedPosts.containsKey('internship'))
-              _buildSection(context, 'Internships', 'internship'),
+            // Display all posts sequentially
+            ...postIds.map((postId) => PostCard(postId: postId.toString())),
           ],
         ),
       ),
@@ -125,37 +109,6 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
           const SizedBox(height: 4),
         ],
       ),
-    );
-  }
-
-  Widget _buildSection(BuildContext context, String title, String category) {
-    final posts = categorizedPosts[category] ?? [];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Title
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: () {
-                  // Navigate to full list of posts for this category
-                },
-              ),
-            ],
-          ),
-        ),
-        // Post Cards
-        ...posts.map((postId) => PostCard(postId: postId)),
-      ],
     );
   }
 }

@@ -105,8 +105,8 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     SizedBox(width: 5),
                     Text(
-                      'Ciglane, Sarajevo',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                      'FENS - Faculty of Engineering and Natural Sciences',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -129,8 +129,8 @@ class ProfilePage extends StatelessWidget {
                   onTap: () {},
                 ),
                 _buildProfileOption(
-                  icon: Icons.edit,
-                  text: 'Edit Profile',
+                  icon: Icons.question_answer,
+                  text: 'FAQ',
                   onTap: () {},
                 ),
                 _buildProfileOption(
