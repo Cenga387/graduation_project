@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_type_check, unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -41,7 +43,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 10),
           Container(
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -51,7 +53,7 @@ class ProfilePage extends StatelessWidget {
                   radius: 40,
                   backgroundImage: AssetImage('assets/oliver.jpg'),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 FutureBuilder<String?>(
                   future: _fetchUsername(),
                   builder: (context, snapshot) {
@@ -85,7 +87,7 @@ class ProfilePage extends StatelessWidget {
                     }
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -114,7 +116,6 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(thickness: 0.5, color: Colors.grey),
           Expanded(
             child: ListView(
               children: [
