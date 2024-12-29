@@ -15,17 +15,7 @@ class ProfilePage extends StatelessWidget {
         .eq('user_id', userId)
         .single();
 
-    if (response == null) {
-      debugPrint('No data returned from the database.');
-      return null;
-    }
-
-    if (response is Map<String, dynamic>) {
-      return response['username'] as String?;
-    } else {
-      debugPrint('Unexpected response type: ${response.runtimeType}');
-      return null;
-    }
+    return response['username'] as String?;
   }
 
   Future<void> _signOut(BuildContext context) async {

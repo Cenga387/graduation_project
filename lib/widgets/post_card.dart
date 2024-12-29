@@ -19,6 +19,7 @@ class _PostCardState extends State<PostCard> {
   String description = '';
   int upvotes = 0;
   int downvotes = 0;
+  String? userVote;
   bool isLoading = true;
 
   @override
@@ -33,7 +34,7 @@ class _PostCardState extends State<PostCard> {
       final supabase = Supabase.instance.client;
       final response = await supabase
           .from('posts')
-          .select('title, description') // Use correct column names
+          .select('title, description')
           .eq('id', widget.postId)
           .single();
 
@@ -70,29 +71,63 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  Future<void> _updateVote(bool isUpvote) async {
+  Future<void> _handleVote(String voteType) async {
     try {
       final supabase = Supabase.instance.client;
-      final field = isUpvote ? 'upvotes' : 'downvotes';
 
-      // Update the database
-      await supabase
-          .from('posts')
-          .update({field: isUpvote ? upvotes + 1 : downvotes + 1}).eq(
-              'id', widget.postId);
+      if (voteType == userVote) {
+        // Cancel the vote
+        final field = voteType == 'upvote' ? 'upvotes' : 'downvotes';
+        await supabase
+            .from('posts')
+            .update({field: field == 'upvotes' ? upvotes - 1 : downvotes - 1})
+            .eq('id', widget.postId);
 
-      // Update the local state
-      setState(() {
-        if (isUpvote) {
-          upvotes++;
-        } else {
-          downvotes++;
+              setState(() {
+          if (voteType == 'upvote') {
+            upvotes--;
+          } else {
+            downvotes--;
+          }
+          userVote = null;
+        });
+      } else {
+        // Update the vote
+        final field = voteType == 'upvote' ? 'upvotes' : 'downvotes';
+        // If switching vote, cancel the previous vote first
+        if (userVote != null) {
+          final previousField = userVote == 'upvote' ? 'upvotes' : 'downvotes';
+          await supabase
+              .from('posts')
+              .update({previousField: previousField == 'upvotes' ? upvotes - 1 : downvotes - 1})
+              .eq('id', widget.postId);
+          setState(() {
+            if (userVote == 'upvote') {
+              upvotes--;
+            } else {
+              downvotes--;
+            }
+          });
         }
-      });
+          await supabase
+            .from('posts')
+            .update({field: field == 'upvotes' ? upvotes + 1 : downvotes + 1})
+            .eq('id', widget.postId);
+        setState(() {
+          if (voteType == 'upvote') {
+            upvotes++;
+          } else {
+            downvotes++;
+          }
+          userVote = voteType;
+        });
+      }
+      
     } catch (e) {
-      debugPrint('Error updating votes: $e');
+      debugPrint('Error handling votes: $e');
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -136,17 +171,22 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_upward, color: Colors.white),
-                      onPressed: () => _updateVote(true),
+                      icon: Icon(
+                        Icons.arrow_upward,
+                        color: userVote == 'upvote' ? Colors.green : Colors.white,
+                      ),
+                      onPressed: () => _handleVote('upvote'),
                     ),
                     Text(
                       '${upvotes - downvotes}',
                       style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                     IconButton(
-                      icon:
-                          const Icon(Icons.arrow_downward, color: Colors.white),
-                      onPressed: () => _updateVote(false),
+                      icon: Icon(
+                        Icons.arrow_downward,
+                        color: userVote == 'downvote' ? Colors.red : Colors.white,
+                      ),
+                      onPressed: () => _handleVote('downvote'),
                     ),
                   ],
                 ),
@@ -169,7 +209,7 @@ class _PostCardState extends State<PostCard> {
                   ),
                   child: const Text(
                     'Show more',
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(color: Color(0xFF005597)),
                   ),
                 ),
               ],
