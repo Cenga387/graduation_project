@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/widgets/post_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class HomePage extends StatefulWidget {
-
-
- 
   const HomePage({super.key});
 
-  @override 
+  @override
   State<StatefulWidget> createState() {
     return _HomePageState();
   }
@@ -28,9 +24,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchPosts() async {
     try {
       final supabase = Supabase.instance.client;
-      final response = await supabase
-          .from('posts')
-          .select('id, category');
+      final response = await supabase.from('posts').select('id, category');
 
       final data = response as List<dynamic>;
 
@@ -60,7 +54,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     if (isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -81,62 +74,85 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSpacing: 24,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildMenuIcon(iconPath: 'assets/ius_wolves.jpeg', label: 'IUS Wolves', onTap: () => {debugPrint('IUS wolves clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/erasmus.png', label: 'Erasmus', onTap: () => {debugPrint('Erasmus clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/internships.jpg', label: 'Internships', onTap: () => {debugPrint('Internships clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/calendar.png', label: 'Academic Calendar', onTap: () => {debugPrint('Academic Calendar clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/iro.jpeg', label: 'IRO', onTap: () => {debugPrint('IRO clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/ius-logo.png', label: 'SAO', onTap: () => {debugPrint('SAO clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/scc.jpeg', label: 'SCC', onTap: () => {debugPrint('SCC clicked')}),
-                  _buildMenuIcon(iconPath: 'assets/clubs.jpg', label: 'Clubs', onTap: () => {debugPrint('Clubs clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/ius_wolves.jpeg',
+                      label: 'IUS Wolves',
+                      onTap: () => {debugPrint('IUS wolves clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/erasmus.png',
+                      label: 'Erasmus',
+                      onTap: () => {debugPrint('Erasmus clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/internships.jpg',
+                      label: 'Internships',
+                      onTap: () => {debugPrint('Internships clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/calendar.png',
+                      label: 'Academic Calendar',
+                      onTap: () => {debugPrint('Academic Calendar clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/iro.jpeg',
+                      label: 'IRO',
+                      onTap: () => {debugPrint('IRO clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/ius-logo.png',
+                      label: 'SAO',
+                      onTap: () => {debugPrint('SAO clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/scc.jpeg',
+                      label: 'SCC',
+                      onTap: () => {debugPrint('SCC clicked')}),
+                  _buildMenuIcon(
+                      iconPath: 'assets/clubs.jpg',
+                      label: 'Clubs',
+                      onTap: () => {debugPrint('Clubs clicked')}),
                 ],
               ),
             ),
             // Announcements Section
-            if (categorizedPosts.containsKey('announcement'))
-              _buildSection(context, 'Announcements', 'announcement'),
+            if (categorizedPosts.containsKey('Announcement'))
+              _buildSection(context, 'Announcements', 'Announcement'),
 
             // Events Section
-            if (categorizedPosts.containsKey('event'))
-              _buildSection(context, 'Events', 'event'),
+            if (categorizedPosts.containsKey('Event'))
+              _buildSection(context, 'Events', 'Event'),
 
             // Other Categories (Add as Needed)
-            if (categorizedPosts.containsKey('internship'))
-              _buildSection(context, 'Internships', 'internship'),
+            if (categorizedPosts.containsKey('Internship'))
+              _buildSection(context, 'Internships', 'Internship'),
           ],
         ),
       ),
     );
   }
 
-    Widget _buildMenuIcon({
-      required String iconPath,
-      required String label,
-      required VoidCallback onTap,
-    }) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: AssetImage(iconPath),
+  Widget _buildMenuIcon({
+    required String iconPath,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundImage: AssetImage(iconPath),
+          ),
+          const SizedBox(height: 4),
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12),
+              maxLines: 2,
+              overflow: TextOverflow.visible,
             ),
-            const SizedBox(height: 4),
-            Flexible(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12),
-                maxLines: 2,
-                overflow: TextOverflow.visible,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildSection(BuildContext context, String title, String category) {
     final posts = categorizedPosts[category] ?? [];
@@ -151,7 +167,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
@@ -168,4 +185,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
