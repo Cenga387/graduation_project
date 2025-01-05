@@ -209,7 +209,7 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
                 if (category == 'Event') ...[
                   if (isUserInAttendance)
                     const Text(
-                      'You have already scanned the QR code for this event.',
+                      'You are attending this event.',
                       style: TextStyle(color: Colors.black, fontSize: 20),
                     )
                   else if (isUserAttending)
