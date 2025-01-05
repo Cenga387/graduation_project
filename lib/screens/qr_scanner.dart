@@ -1,60 +1,85 @@
-// import 'package:flutter/material.dart';
-// import 'package:graduation_project/services/attendance_service.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:graduation_project/services/attendance_service.dart';
 
-// class QRCodeScannerScreen extends StatefulWidget {
-//   final String postId;
+class QRCodeScannerScreen extends StatefulWidget {
+  final String postId;
+  final String? qrCodeImageUrl;
+  final String? qrCodeRawData;
 
-//   const QRCodeScannerScreen({super.key, required this.postId});
+  const QRCodeScannerScreen(
+      {super.key,
+      required this.postId,
+      required this.qrCodeImageUrl,
+      required this.qrCodeRawData});
 
-//   @override
-//   State<QRCodeScannerScreen> createState() => _QRCodeScannerScreenState();
-// }
+  @override
+  State<QRCodeScannerScreen> createState() => _QRCodeScannerScreenState();
+}
 
-// class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
-//   final AttendanceService _attendanceService = AttendanceService();
-//   bool isScanning = false;
+class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
+  final MobileScannerController _controller = MobileScannerController();
+  bool isScanning = false;
 
-//   void handleQRCodeScanned(String qrData) async {
-//     if (isScanning) return;
+  @override
+  void initState() {
+    super.initState();
 
-//     setState(() {
-//       isScanning = true;
-//     });
+    // Listen for barcode detection events
+    _controller.barcodes.listen((barcodeCapture) {
+      if (!isScanning) {
+        final barcode = barcodeCapture.barcodes.first;
+        if (barcode.rawValue != null) {
+          handleQRCodeScanned(barcode.rawValue!);
+        }
+      }
+    });
+  }
 
-//     try {
-//       if (qrData.contains(widget.postId)) {
-//         await _attendanceService.markAsAttended(widget.postId);
-//         Navigator.pop(context); // Close scanner
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Attendance marked successfully!')),
-//         );
-//       } else {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Invalid QR code.')),
-//         );
-//       }
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Error: $e')),
-//       );
-//     }
+  @override
+  void dispose() {
+    _controller.dispose(); // Dispose of the controller to free resources
+    super.dispose();
+  }
 
-//     setState(() {
-//       isScanning = false;
-//     });
-//   }
+  void handleQRCodeScanned(String scannedQRCode) async {
+    setState(() {
+      isScanning = true;
+    });
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Scan QR Code')),
-//       body: MobileScanner(
-//         onDetect: (barcode, args) {
-//           if (barcode.rawValue != null) {
-//             handleQRCodeScanned(barcode.rawValue!);
-//           }
-//         },
-//       ),
-//     );
-//   }
-// }
+    try {
+      // Compare scanned QR code with the stored QR code image URL
+      if (scannedQRCode == widget.qrCodeRawData) {
+        await AttendanceService()
+            .markAsAttended(widget.postId); // Mark attendance
+        Navigator.pop(context); // Close scanner
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Attendance marked successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invalid QR code.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      setState(() {
+        isScanning = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Scan QR Code')),
+      body: MobileScanner(
+        controller: _controller,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,12 +33,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) throw 'User not authenticated';
 
-      // Generate and upload QR code for 'Event' category
+      // Generate raw QR code data and image for 'Event' category
+      String? qrCodeRawData;
       String? qrCodeImageUrl;
       if (_selectedCategoryController == 'Event') {
+        qrCodeRawData = _generateQrCodeRawData();
         qrCodeImageUrl = await _generateAndUploadQrCode(
-          title: _titleController.text,
-          content: _contentController.text,
+          rawData: qrCodeRawData,
         );
       }
 
@@ -49,7 +51,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'faculty': _selectedFacultyController,
         'category': _selectedCategoryController,
         'author_id': userId,
-        'qr_code_image_url': qrCodeImageUrl,
+        'qr_code_raw_data': qrCodeRawData, // Store raw QR code data
+        'qr_code_image_url': qrCodeImageUrl, // Store QR code image URL
       });
 
       if (mounted) {
@@ -67,14 +70,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
+  String _generateQrCodeRawData() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final random = Random().nextInt(999999).toString().padLeft(6, '0');
+    return 'event_${_titleController.text}_${timestamp}_$random';
+  }
+
   Future<String> _generateAndUploadQrCode({
-    required String title,
-    required String content,
+    required String rawData,
   }) async {
     try {
       // Generate the QR code image as bytes
       final qrValidationResult = QrValidator.validate(
-        data: 'Title: $title\nContent: $content',
+        data: rawData, // Use raw data as the QR code content
         version: QrVersions.auto,
         errorCorrectionLevel: QrErrorCorrectLevel.L,
       );
@@ -225,19 +233,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     .toList(),
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                height: 40,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) _createPost();
-                  },
-                  child: const Text('Create Post'),
-                ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) _createPost();
+                },
+                child: const Text('Create Post'),
               ),
             ],
           ),

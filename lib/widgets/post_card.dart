@@ -17,6 +17,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   String title = '';
   String description = '';
+  String category = '';
   int upvotes = 0;
   int downvotes = 0;
   String? userVote;
@@ -34,13 +35,14 @@ class _PostCardState extends State<PostCard> {
       final supabase = Supabase.instance.client;
       final response = await supabase
           .from('posts')
-          .select('title, description')
+          .select('title, description, category')
           .eq('id', widget.postId)
           .single();
 
       setState(() {
         title = response['title'];
         description = response['description'];
+        category = response['category'];
         isLoading = false;
       });
     } catch (e) {
