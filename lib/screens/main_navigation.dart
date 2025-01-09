@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project/screens/create_post.dart';
+import 'package:graduation_project/screens/section.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/nav_bar.dart';
 import 'home.dart';
@@ -32,12 +33,12 @@ class _MainNavigationState extends State<MainNavigation> {
     'Profile',
   ];
 
-  String? _userRole; // Store the user's role
+  String? _userRole;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserRole(); // Fetch the user role during initialization
+    _fetchUserRole();
     _screens = [
       _homeScreen,
       _announcementScreen,
@@ -59,7 +60,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
       if (mounted) {
         setState(() {
-          _userRole = response['role']; // Assign the role to the variable
+          _userRole = response['role'];
         });
       }
     } catch (e) {
@@ -80,19 +81,76 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey, // Assign the key to the Scaffold
+      key: _scaffoldKey,
       drawer: _titles[_selectedIndex] == "Announcements"
           ? Drawer(
               child: ListView(
-                children: const [
-                  DrawerHeader(
-                    decoration: BoxDecoration(color: Colors.blue),
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
+                children: [
+                  Container(
+                    height: 80,
+                    color: Colors.blue,
+                    child: const DrawerHeader(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                      ),
+                      child: Text(
+                        'Menu',
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
                     ),
                   ),
-                  // Add other menu items
+                  ListTile(
+                    title: const Text('Internships'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SectionPage(
+                            title: 'Interships',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Exams'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SectionPage(
+                            title: 'Exams',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Erasmus'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SectionPage(
+                            title: 'Erasmus',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Volunteering'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SectionPage(
+                            title: 'Volunteering',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             )
@@ -106,15 +164,12 @@ class _MainNavigationState extends State<MainNavigation> {
             ? IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  _scaffoldKey.currentState
-                      ?.openDrawer(); // Access ScaffoldState
+                  _scaffoldKey.currentState?.openDrawer();
                 },
               )
             : null,
         actions: [
-          if (_selectedIndex == 0 &&
-              _userRole ==
-                  'admin') // Add '+' button for admins on the Home page
+          if (_selectedIndex == 0 && _userRole == 'admin')
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {

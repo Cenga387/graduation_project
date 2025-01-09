@@ -79,7 +79,6 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
                 ],
               ),
             ),
-            // Display all posts sequentially
             ...postIds.map((postId) => PostCard(postId: postId.toString())),
           ],
         ),
