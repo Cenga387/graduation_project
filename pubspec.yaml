@@ -13,6 +13,9 @@ dependencies:
   supabase_flutter: ^2.8.1
   http: ^1.2.2
   cupertino_icons: ^1.0.8
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^6.0.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

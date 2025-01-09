@@ -111,6 +111,7 @@ class _HomePageState extends State<HomePage> {
             ),
             // Announcements Section
             if (categorizedPosts.containsKey('Announcement'))
+
               _buildSection(
                   context, 'Announcements', 'Announcement', '/announcements'),
 
@@ -122,6 +123,7 @@ class _HomePageState extends State<HomePage> {
             if (categorizedPosts.containsKey('Internship'))
               _buildSection(
                   context, 'Internships', 'Internship', '/internships'),
+
           ],
         ),
       ),
