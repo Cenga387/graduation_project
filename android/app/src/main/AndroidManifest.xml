@@ -41,11 +41,12 @@
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="http" />
             <data android:scheme="https" />
-            <data android:mimeType="text/plain"/>
         </intent>
     </queries>
 </manifest>
