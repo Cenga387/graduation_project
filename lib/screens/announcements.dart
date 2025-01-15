@@ -87,8 +87,8 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
               ),
             ),
             // Announcements Section
-            if (categorizedPosts.containsKey('announcement'))
-              _buildSection(context, 'Announcements', 'announcement'),
+            if (categorizedPosts.containsKey('Announcement'))
+              _buildSection(context, 'Announcements', 'Announcement'),
 
             // Events Section
             if (categorizedPosts.containsKey('event'))
@@ -133,26 +133,6 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: () {
-                  // Navigate to full list of posts for this category
-                },
-              ),
-            ],
-          ),
-        ),
         // Post Cards
         ...posts.map((postId) => PostCard(postId: postId)),
       ],

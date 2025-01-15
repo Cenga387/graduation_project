@@ -127,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _usernameController,
                         decoration: InputDecoration(
-                          labelText: 'Username',
+                          labelText: 'Full name',
                           border: const OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(15)),
                           ),

@@ -22,12 +22,39 @@ class _PostCardState extends State<PostCard> {
   int downvotes = 0;
   String? userVote;
   bool isLoading = true;
+  String? _userRole; // Store the user's role
 
   @override
   void initState() {
     super.initState();
+    _fetchUserRole();
     _fetchPost();
     _fetchVotes();
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
+
+      final response = await Supabase.instance.client
+          .from('profile')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+
+      if (mounted) {
+        setState(() {
+          _userRole = response['role']; // Assign the role to the variable
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
+    }
   }
 
   Future<void> _fetchPost() async {
@@ -80,12 +107,11 @@ class _PostCardState extends State<PostCard> {
       if (voteType == userVote) {
         // Cancel the vote
         final field = voteType == 'upvote' ? 'upvotes' : 'downvotes';
-        await supabase
-            .from('posts')
-            .update({field: field == 'upvotes' ? upvotes - 1 : downvotes - 1})
-            .eq('id', widget.postId);
+        await supabase.from('posts').update({
+          field: field == 'upvotes' ? upvotes - 1 : downvotes - 1
+        }).eq('id', widget.postId);
 
-              setState(() {
+        setState(() {
           if (voteType == 'upvote') {
             upvotes--;
           } else {
@@ -99,10 +125,10 @@ class _PostCardState extends State<PostCard> {
         // If switching vote, cancel the previous vote first
         if (userVote != null) {
           final previousField = userVote == 'upvote' ? 'upvotes' : 'downvotes';
-          await supabase
-              .from('posts')
-              .update({previousField: previousField == 'upvotes' ? upvotes - 1 : downvotes - 1})
-              .eq('id', widget.postId);
+          await supabase.from('posts').update({
+            previousField:
+                previousField == 'upvotes' ? upvotes - 1 : downvotes - 1
+          }).eq('id', widget.postId);
           setState(() {
             if (userVote == 'upvote') {
               upvotes--;
@@ -111,10 +137,9 @@ class _PostCardState extends State<PostCard> {
             }
           });
         }
-          await supabase
-            .from('posts')
-            .update({field: field == 'upvotes' ? upvotes + 1 : downvotes + 1})
-            .eq('id', widget.postId);
+        await supabase.from('posts').update({
+          field: field == 'upvotes' ? upvotes + 1 : downvotes + 1
+        }).eq('id', widget.postId);
         setState(() {
           if (voteType == 'upvote') {
             upvotes++;
@@ -124,12 +149,10 @@ class _PostCardState extends State<PostCard> {
           userVote = voteType;
         });
       }
-      
     } catch (e) {
       debugPrint('Error handling votes: $e');
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -146,14 +169,41 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Title
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (_userRole == 'admin')
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.white),
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      //_editPost(context); // Edit the post 
+                    } else if (value == 'delete') {
+                      _deletePost(context);
+                      // Delete the post
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Text('Edit'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete'),
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             // Description
@@ -175,7 +225,8 @@ class _PostCardState extends State<PostCard> {
                     IconButton(
                       icon: Icon(
                         Icons.arrow_upward,
-                        color: userVote == 'upvote' ? Colors.green : Colors.white,
+                        color:
+                            userVote == 'upvote' ? Colors.green : Colors.white,
                       ),
                       onPressed: () => _handleVote('upvote'),
                     ),
@@ -186,7 +237,8 @@ class _PostCardState extends State<PostCard> {
                     IconButton(
                       icon: Icon(
                         Icons.arrow_downward,
-                        color: userVote == 'downvote' ? Colors.red : Colors.white,
+                        color:
+                            userVote == 'downvote' ? Colors.red : Colors.white,
                       ),
                       onPressed: () => _handleVote('downvote'),
                     ),
@@ -221,4 +273,35 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
+}
+
+// Function to delete the post
+void _deletePost(BuildContext context) {
+  // Show confirmation dialog before deleting
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text('Delete Post'),
+        content: const Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close dialog
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Post deleted successfully')),
+              );
+              // Implement deletion logic here
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
 }
