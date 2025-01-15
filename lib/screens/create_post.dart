@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -16,23 +18,31 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final List<String> _faculties = ['FENS', 'FASS', 'FLW', 'FEDU', 'FBA'];
+  final List<String> _faculties = ['FENS', 'FASS', 'FLW', 'FEDU', 'FBA', 'All'];
   final List<String> _categories = [
-    'Announcement',
+    'Announcement (IRO)',
+    'Announcement (SAO)',
+    'Announcement (SCC)',
+    'Announcement (IUS Wolves)',
     'Event',
     'Job',
-    'Internship'
+    'Internship',
+    'Erasmus',
+    'Clubs',
   ];
   String _selectedFacultyController = '';
   String _selectedCategoryController = '';
+
+  final QuillController _contentController = QuillController.basic();
 
   Future<void> _createPost() async {
     try {
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId == null) throw 'User not authenticated';
 
+      final contentJson =
+          jsonEncode(_contentController.document.toDelta().toJson());
       // Generate raw QR code data and image for 'Event' category
       String? qrCodeRawData;
       String? qrCodeImageUrl;
@@ -46,7 +56,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       // Insert post data into Supabase
       await Supabase.instance.client.from('posts').insert({
         'title': _titleController.text,
-        'content': _contentController.text,
+        'content': contentJson,
         'description': _descriptionController.text,
         'faculty': _selectedFacultyController,
         'category': _selectedCategoryController,
@@ -124,122 +134,138 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Post')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Title',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: const Text('Create Post'),
+        scrolledUnderElevation: 0.0,
+        backgroundColor: const Color(0xFFF8F9FE),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    labelText: 'Title',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Title is required' : null,
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? 'Title is required' : null,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _contentController,
-                decoration: InputDecoration(
-                  labelText: 'Content',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                const SizedBox(height: 20),
+                const Text('Post content', style: TextStyle(fontSize: 16)),
+                const SizedBox(height: 10),
+                Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        QuillSimpleToolbar(
+                            controller: _contentController,
+                            configurations:
+                                const QuillSimpleToolbarConfigurations(showSubscript: false, showSuperscript: false, showListBullets: false, showListNumbers: false, showQuote: false, showSearchButton: false, showHeaderStyle: false, showCodeBlock: false, showInlineCode: false, showListCheck: false, showClearFormat: false)),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 250,
+                          child: QuillEditor.basic(
+                            controller: _contentController,
+                            configurations: const QuillEditorConfigurations(),
+                          ),
+                        ),
+                      ],
+                    )),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Description is required' : null,
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? 'Content is required' : null,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: _selectedFacultyController.isEmpty
+                      ? null
+                      : _selectedFacultyController,
+                  decoration: InputDecoration(
+                    labelText: 'Faculty',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedFacultyController = newValue!;
+                    });
+                  },
+                  items: _faculties
+                      .map((faculty) => DropdownMenuItem(
+                            value: faculty,
+                            child: Text(faculty),
+                          ))
+                      .toList(),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? 'Description is required' : null,
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                value: _selectedFacultyController.isEmpty
-                    ? null
-                    : _selectedFacultyController,
-                decoration: InputDecoration(
-                  labelText: 'Faculty',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                const SizedBox(height: 20),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategoryController.isEmpty
+                      ? null
+                      : _selectedCategoryController,
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(Radius.circular(15)),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedCategoryController = newValue!;
+                    });
+                  },
+                  items: _categories
+                      .map((category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          ))
+                      .toList(),
                 ),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedFacultyController = newValue!;
-                  });
-                },
-                items: _faculties
-                    .map((faculty) => DropdownMenuItem(
-                          value: faculty,
-                          child: Text(faculty),
-                        ))
-                    .toList(),
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<String>(
-                value: _selectedCategoryController.isEmpty
-                    ? null
-                    : _selectedCategoryController,
-                decoration: InputDecoration(
-                  labelText: 'Category',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) _createPost();
+                  },
+                  child: const Text('Create Post'),
                 ),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedCategoryController = newValue!;
-                  });
-                },
-                items: _categories
-                    .map((category) => DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        ))
-                    .toList(),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) _createPost();
-                },
-                child: const Text('Create Post'),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project/widgets/post_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'posts_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,25 +23,40 @@ class _HomePageState extends State<HomePage> {
     _fetchPosts();
   }
 
+  _launchURL() async {
+    final Uri url = Uri.parse('https://www.ius.edu.ba/en/academic-calendar');
+    if (!await launchUrl(url)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
   Future<void> _fetchPosts() async {
     try {
       final supabase = Supabase.instance.client;
+
+      // Fetch posts from the database
       final response = await supabase.from('posts').select('id, category');
 
       final data = response as List<dynamic>;
 
-      // Group posts by category
+      // Group posts by category with filtering for 'Announcement'
       final Map<String, List<String>> postsByCategory = {};
       for (var post in data) {
         final String category = post['category'];
         final int postId = post['id'];
 
-        if (!postsByCategory.containsKey(category)) {
-          postsByCategory[category] = [];
+        // Group 'Announcement' posts under a common key
+        final categoryKey =
+            category.contains('Announcement') ? 'Announcement' : category;
+
+        if (!postsByCategory.containsKey(categoryKey)) {
+          postsByCategory[categoryKey] = [];
         }
-        postsByCategory[category]?.add(postId.toString());
+
+        postsByCategory[categoryKey]!.add(postId.toString());
       }
 
+      // Update state with the categorized posts
       setState(() {
         categorizedPosts = postsByCategory;
         isLoading = false;
@@ -75,37 +92,101 @@ class _HomePageState extends State<HomePage> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildMenuIcon(
-                      iconPath: 'assets/ius_wolves.jpeg',
-                      label: 'IUS Wolves',
-                      onTap: () => {debugPrint('IUS wolves clicked')}),
+                    iconPath: 'assets/ius_wolves.jpeg',
+                    label: 'IUS Wolves',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PostsListPage(
+                              category: 'Announcement (IUS Wolves)'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/erasmus.png',
-                      label: 'Erasmus',
-                      onTap: () => {debugPrint('Erasmus clicked')}),
+                    iconPath: 'assets/erasmus.png',
+                    label: 'Erasmus',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PostsListPage(category: 'Erasmus'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/internships.jpg',
-                      label: 'Internships',
-                      onTap: () => {debugPrint('Internships clicked')}),
+                    iconPath: 'assets/internships.jpg',
+                    label: 'Internships',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PostsListPage(category: 'Internships'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/calendar.png',
-                      label: 'Academic Calendar',
-                      onTap: () => {debugPrint('Academic Calendar clicked')}),
+                    iconPath: 'assets/calendar.png',
+                    label: 'Academic Calendar',
+                    onTap: () => _launchURL(),
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/iro.jpeg',
-                      label: 'IRO',
-                      onTap: () => {debugPrint('IRO clicked')}),
+                    iconPath: 'assets/iro.jpeg',
+                    label: 'IRO',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PostsListPage(
+                              category: 'Announcement (IRO)'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/ius-logo.png',
-                      label: 'SAO',
-                      onTap: () => {debugPrint('SAO clicked')}),
+                    iconPath: 'assets/ius-logo.png',
+                    label: 'SAO',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PostsListPage(
+                              category: 'Announcement (SAO)'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/scc.jpeg',
-                      label: 'SCC',
-                      onTap: () => {debugPrint('SCC clicked')}),
+                    iconPath: 'assets/scc.jpeg',
+                    label: 'SCC',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PostsListPage(
+                              category: 'Announcement (SCC)'),
+                        ),
+                      )
+                    },
+                  ),
                   _buildMenuIcon(
-                      iconPath: 'assets/clubs.jpg',
-                      label: 'Clubs',
-                      onTap: () => {debugPrint('Clubs clicked')}),
+                    iconPath: 'assets/clubs.jpg',
+                    label: 'Clubs',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const PostsListPage(category: 'Clubs'),
+                        ),
+                      )
+                    },
+                  ),
                 ],
               ),
             ),
@@ -173,8 +254,17 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: () {
-                  // Navigate to full list of posts for this category
-                },
+                // Navigate to PostsListPage with appropriate category filtering
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostsListPage(
+                      category: category,
+                      isAnnouncement: category == 'Announcement',
+                    ),
+                  ),
+                );
+              },
               ),
             ],
           ),

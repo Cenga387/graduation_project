@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:flutter_quill/flutter_quill.dart';
+import 'dart:convert';
 import '../services/attendance_service.dart'; // Import your AttendanceService
 import 'qr_scanner.dart'; // Import your QR Code Scanner Screen
 
@@ -15,9 +16,9 @@ class DetailedPostScreen extends StatefulWidget {
 
 class _DetailedPostScreenState extends State<DetailedPostScreen> {
   final AttendanceService _attendanceService = AttendanceService();
+  late QuillController _contentController;
 
-  bool isUserInAttendance =
-      false; // Tracks if the user has confirmed attendance
+  bool isUserInAttendance = false; // Tracks if the user has confirmed attendance
   bool isUserAttending = false; // Tracks if the user clicked to attend
   bool isLoading = false; // Tracks loading state
   String? qrCodeImageUrl;
@@ -26,9 +27,34 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   @override
   void initState() {
     super.initState();
+    _loadPostContent();
     _fetchQRCodeImageUrl();
     _checkAttendance();
     _checkPotentialAttendanceStatus();
+  }
+
+  Future<void> _loadPostContent() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('posts')
+          .select('content')
+          .eq('id', widget.postId)
+          .single();
+      
+      final contentJson = response['content'] as String;
+      final content = Document.fromJson(jsonDecode(contentJson));
+
+      setState(() {
+        _contentController = QuillController(document: content, readOnly: true, selection: const TextSelection.collapsed(offset: 0),
+        );
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading post content: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _fetchQRCodeImageUrl() async {
@@ -185,14 +211,20 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
                 Text(
                   data['title'],
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  data['content'],
-                  style: const TextStyle(fontSize: 16),
+                const SizedBox(height: 16),
+                QuillEditor(
+                  focusNode: FocusNode(canRequestFocus: false),
+                  scrollController: ScrollController(),
+                  controller: _contentController,
+                  configurations: const QuillEditorConfigurations(
+                    checkBoxReadOnly: true,
+                    readOnlyMouseCursor: SystemMouseCursors.forbidden,
+                    showCursor: false,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
