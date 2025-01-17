@@ -53,7 +53,7 @@ class _PostsListPageState extends State<PostsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.category}s'),
+        title: Text('${widget.category} posts'),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
