@@ -12,42 +12,47 @@ class AnnouncementPage extends StatefulWidget {
 }
 
 class _AnnouncementPageState extends State<AnnouncementPage> {
-  Map<String, List<String>> categorizedPosts = {};
+List<dynamic> posts = [];
+String? _selectedFaculty;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchPosts();
+    _fetchPostsByFaculty('All');
   }
+// Fetch posts for a specific faculty
+  Future<void> _fetchPostsByFaculty(String faculty) async {
+    setState(() => isLoading = true);
 
-  Future<void> _fetchPosts() async {
     try {
       final supabase = Supabase.instance.client;
-      final response = await supabase.from('posts').select('id, category');
 
-      final data = response as List<dynamic>;
-
-      final Map<String, List<String>> postsByCategory = {};
-      for (var post in data) {
-        final String category = post['category'];
-        final int postId = post['id'];
-
-        if (!postsByCategory.containsKey(category)) {
-          postsByCategory[category] = [];
-        }
-        postsByCategory[category]?.add(postId.toString());
-      }
+      final response = await supabase
+          .from('posts')
+          .select()
+          .eq('faculty', faculty)
+          .order('created_at', ascending: false);
 
       setState(() {
-        categorizedPosts = postsByCategory;
+        posts = response as List<dynamic>;
         isLoading = false;
       });
     } catch (e) {
       debugPrint('Error fetching posts: $e');
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
+    }
+  }
+  // Handle faculty button click
+  void _onFacultyButtonPressed(String faculty) {
+    if (_selectedFaculty == faculty) {
+      // Reset to 'All' posts if the same faculty is clicked again
+      setState(() => _selectedFaculty = null);
+      _fetchPostsByFaculty('All');
+    } else {
+      // Highlight the new faculty and fetch its posts
+      setState(() => _selectedFaculty = faculty);
+      _fetchPostsByFaculty(faculty);
     }
   }
 
@@ -60,82 +65,85 @@ class _AnnouncementPageState extends State<AnnouncementPage> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GridView.count(
-                crossAxisCount: 5,
-                shrinkWrap: true,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 44,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildMenuIcon(
-                      label: 'FENS', onTap: () => {debugPrint('FENS clicked')}),
-                  _buildMenuIcon(
-                      label: 'FLW', onTap: () => {debugPrint('FLW clicked')}),
-                  _buildMenuIcon(
-                      label: 'FASS', onTap: () => {debugPrint('FASS clicked')}),
-                  _buildMenuIcon(
-                      label: 'FBA', onTap: () => {debugPrint('FBA clicked')}),
-                  _buildMenuIcon(
-                      label: 'FEDU', onTap: () => {debugPrint('FEDU clicked')}),
-                ],
-              ),
-            ),
-            // Announcements Section
-            if (categorizedPosts.containsKey('Announcement'))
-              _buildSection(context, 'Announcements', 'Announcement'),
-
-            // Events Section
-            if (categorizedPosts.containsKey('event'))
-              _buildSection(context, 'Events', 'event'),
-
-            // Other Categories (Add as Needed)
-            if (categorizedPosts.containsKey('internship'))
-              _buildSection(context, 'Internships', 'internship'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuIcon({
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
+      body: Column(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: const Color(0xFF005597),
-            child: Text(
-              label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
+          // Faculty Filter Options
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GridView.count(
+              crossAxisCount: 5,
+              shrinkWrap: true,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 44,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildMenuIcon(
+                    label: 'FENS', isSelected: _selectedFaculty == 'FENS', onTap: () => _onFacultyButtonPressed('FENS')),
+                _buildMenuIcon(
+                    label: 'FLW', isSelected: _selectedFaculty == 'FLW', onTap: () => _onFacultyButtonPressed('FLW')),
+                _buildMenuIcon(
+                    label: 'FASS', isSelected: _selectedFaculty == 'FASS', onTap: () => _onFacultyButtonPressed('FASS')),
+                _buildMenuIcon(
+                    label: 'FBA', isSelected: _selectedFaculty == 'FBA', onTap: () => _onFacultyButtonPressed('FBA')),
+                _buildMenuIcon(
+                    label: 'FEDU', isSelected: _selectedFaculty == 'FEDU', onTap: () => _onFacultyButtonPressed('FEDU')),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 16),
+          // Display Filtered Posts
+          Expanded(
+            child: posts.isEmpty
+                ? const Center(
+                    child: Text('No posts available for this faculty.'),
+                  )
+                : ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      return PostCard(postId: post['id'].toString());
+                    },
+                  ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, String category) {
-    final posts = categorizedPosts[category] ?? [];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Post Cards
-        ...posts.map((postId) => PostCard(postId: postId)),
-      ],
+Widget _buildMenuIcon({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: isSelected ? const Color.fromARGB(255, 0, 53, 94) : const Color(0xFF005597),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color.fromARGB(255, 0, 53, 94).withValues(),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3), // Shadow position
+                  ),
+                ]
+              : [],
+        ),
+        child: CircleAvatar(
+          radius: 30,
+          backgroundColor: Colors.transparent,
+          child: Text(
+            label,
+            style: const TextStyle(
+                fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ),
     );
   }
 }

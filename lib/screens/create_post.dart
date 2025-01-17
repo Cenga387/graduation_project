@@ -21,6 +21,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _descriptionController = TextEditingController();
   final List<String> _faculties = ['FENS', 'FASS', 'FLW', 'FEDU', 'FBA', 'All'];
   final List<String> _categories = [
+    'Announcement (General)',
     'Announcement (IRO)',
     'Announcement (SAO)',
     'Announcement (SCC)',
