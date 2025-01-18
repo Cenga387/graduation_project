@@ -56,6 +56,14 @@ class _CareersPageState extends State<CareersPage> {
     }
   }
 
+  Future<void> _refreshPosts() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await _fetchPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -65,18 +73,18 @@ class _CareersPageState extends State<CareersPage> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: RefreshIndicator(
+      onRefresh: _refreshPosts,
+      child: ListView(
           children: [
             // Job Section
             if (categorizedPosts.containsKey('Job'))
               _buildSection(context, 'Job', 'Job'),
-
+            const SizedBox(height: 16.0),
             // Events Section
             if (categorizedPosts.containsKey('Erasmus'))
               _buildSection(context, 'Erasmus', 'Erasmus'),
-
+            const SizedBox(height: 16.0),
             // Internships Section
             if (categorizedPosts.containsKey('Internship'))
               _buildSection(context, 'Internships', 'Internship'),
@@ -111,7 +119,8 @@ class _CareersPageState extends State<CareersPage> {
                     MaterialPageRoute(
                       builder: (context) => PostsListPage(
                         category: category,
-                        isAnnouncement: false, // No special filtering for announcements
+                        isAnnouncement:
+                            false, // No special filtering for announcements
                       ),
                     ),
                   );
