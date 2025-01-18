@@ -1,8 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:graduation_project/screens/adminDashboard/admin_dashboard.dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/screens/feedback.dart';
+class ProfilePage extends StatefulWidget {
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({
+    super.key,
+    
+  });
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRole();
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
+
+      final response = await Supabase.instance.client
+          .from('profile')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+
+      if (mounted) {
+        setState(() {
+          _userRole = response['role']; // Assign the role to the variable
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
+    }
+  }
 
   Future<String?> _fetchUsername() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -144,11 +187,19 @@ class ProfilePage extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildProfileOption(
-                  icon: Icons.person,
-                  text: 'Profile',
-                  onTap: () {},
-                ),
+                if (_userRole == 'admin')
+                  _buildProfileOption(
+                    icon: Icons.admin_panel_settings,
+                    text: 'Admin Dashboard',
+                    onTap: () {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminDashboardPage(),
+                      ),
+                    );
+                    },
+                  ),
                 _buildProfileOption(
                   icon: Icons.notifications,
                   text: 'Notifications',
@@ -159,6 +210,19 @@ class ProfilePage extends StatelessWidget {
                   text: 'Edit Profile',
                   onTap: () {},
                 ),
+                if (_userRole == 'user')
+                 _buildProfileOption(
+                  icon: Icons.feedback,
+                  text: 'Feedback',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FeedbackScreen(),
+                      ),
+                    );
+                  },
+                ),                
                 _buildProfileOption(
                   icon: Icons.logout,
                   text: 'Log out',
