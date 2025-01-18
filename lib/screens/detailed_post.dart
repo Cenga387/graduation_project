@@ -1,7 +1,10 @@
+import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:csv/csv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'dart:convert';
 import '../services/attendance_service.dart'; // Import your AttendanceService
 import 'qr_scanner.dart'; // Import your QR Code Scanner Screen
 
@@ -18,19 +21,41 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   final AttendanceService _attendanceService = AttendanceService();
   late QuillController _contentController;
 
-  bool isUserInAttendance = false; // Tracks if the user has confirmed attendance
+  bool isUserInAttendance =
+      false; // Tracks if the user has confirmed attendance
   bool isUserAttending = false; // Tracks if the user clicked to attend
   bool isLoading = false; // Tracks loading state
   String? qrCodeImageUrl;
   String? qrCodeRawData;
+  String? userRole;
 
   @override
   void initState() {
     super.initState();
+    _fetchUserRole();
     _loadPostContent();
     _fetchQRCodeImageUrl();
     _checkAttendance();
     _checkPotentialAttendanceStatus();
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
+
+      final response = await Supabase.instance.client
+          .from('profile')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+
+      setState(() {
+        userRole = response['role'] as String?;
+      });
+    } catch (e) {
+      debugPrint('Error fetching user role: $e');
+    }
   }
 
   Future<void> _loadPostContent() async {
@@ -40,22 +65,74 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
           .select('content')
           .eq('id', widget.postId)
           .single();
-      
+
       final contentJson = response['content'] as String;
       final content = Document.fromJson(jsonDecode(contentJson));
 
       setState(() {
-        _contentController = QuillController(document: content, readOnly: true, selection: const TextSelection.collapsed(offset: 0),
+        _contentController = QuillController(
+          document: content,
+          readOnly: true,
+          selection: const TextSelection.collapsed(offset: 0),
         );
         isLoading = false;
       });
     } catch (e) {
       debugPrint('Error loading post content: $e');
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
+
+  Future<void> _downloadAttendance() async {
+  try {
+    // Fetch attendance data along with user emails
+    final response = await Supabase.instance.client
+        .from('potential_attendance')
+        .select('user_id, user_email')
+        .eq('post_id', widget.postId);
+
+    final data = response as List<dynamic>;
+
+    // Prepare CSV data
+    List<List<String>> csvData = [
+      ['User ID', 'Email'], // Headers
+      ...data.map((record) => [
+            record['user_id'] as String,
+            record['user_email'] as String,
+          ]),
+    ];
+
+    // Convert to CSV format
+    String csv = const ListToCsvConverter().convert(csvData);
+
+    // Get the Downloads directory
+    Directory? downloadsDirectory;
+    if (Platform.isAndroid) {
+      downloadsDirectory = Directory('/storage/emulated/0/Download');
+    } else if (Platform.isIOS) {
+      downloadsDirectory = await getApplicationDocumentsDirectory();
+    } else {
+      throw 'Unsupported platform';
+    }
+
+    final filePath =
+        '${downloadsDirectory.path}/attendance_${widget.postId}.csv';
+    final file = File(filePath);
+
+    // Write the CSV data to the file
+    await file.writeAsString(csv);
+
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Attendance list downloaded to: $filePath')),
+    );
+  } catch (e) {
+    debugPrint('Error downloading attendance: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
+  }
+}
 
   Future<void> _fetchQRCodeImageUrl() async {
     try {
@@ -236,7 +313,13 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
                   style: const TextStyle(fontSize: 14),
                 ),
                 const SizedBox(height: 16),
-
+                if (userRole == 'admin' && category == 'Event') ...[
+                  ElevatedButton(
+                    onPressed: _downloadAttendance,
+                    child: const Text('Download Attendance'),
+                  ),
+                ],
+                const SizedBox(height: 16),
                 // Conditionally render buttons based on category and attendance
                 if (category == 'Event') ...[
                   if (isUserInAttendance)

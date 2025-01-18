@@ -69,6 +69,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _refreshPosts() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await _fetchPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -78,7 +86,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
+        body: RefreshIndicator(
+      onRefresh: _refreshPosts,
+      child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -125,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const PostsListPage(category: 'Internships'),
+                              const PostsListPage(category: 'Internship'),
                         ),
                       )
                     },
@@ -204,7 +214,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildMenuIcon({
@@ -242,7 +252,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         // Section Title
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -254,17 +264,17 @@ class _HomePageState extends State<HomePage> {
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: () {
-                // Navigate to PostsListPage with appropriate category filtering
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PostsListPage(
-                      category: category,
-                      isAnnouncement: category == 'Announcement',
+                  // Navigate to PostsListPage with appropriate category filtering
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PostsListPage(
+                        category: category,
+                        isAnnouncement: category == 'Announcement',
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
               ),
             ],
           ),

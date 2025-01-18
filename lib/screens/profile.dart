@@ -1,8 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:graduation_project/screens/adminDashboard/admin_dashboard.dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/screens/feedback.dart';
+class ProfilePage extends StatefulWidget {
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({
+    super.key,
+    
+  });
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String? _userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserRole();
+  }
+
+  Future<void> _fetchUserRole() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
+
+      final response = await Supabase.instance.client
+          .from('profile')
+          .select('role')
+          .eq('user_id', userId)
+          .single();
+
+      if (mounted) {
+        setState(() {
+          _userRole = response['role']; // Assign the role to the variable
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
+    }
+  }
 
   Future<String?> _fetchUsername() async {
     final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -16,6 +59,20 @@ class ProfilePage extends StatelessWidget {
         .single();
 
     return response['username'] as String?;
+  }
+
+  Future<String?> _fetchFaculty() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null) return null;
+
+    final response = await Supabase.instance.client
+        .from('profile')
+        .select('faculty')
+        .eq('user_id', userId)
+        .single();
+
+    return response['faculty'] as String?;
   }
 
   Future<void> _signOut(BuildContext context) async {
@@ -39,7 +96,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/oliver.jpg'),
+                  //backgroundImage: AssetImage('assets/oliver.jpg'),
                 ),
                 const SizedBox(height: 10),
                 FutureBuilder<String?>(
@@ -90,15 +147,37 @@ class ProfilePage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(width: 5),
-                    Text(
-                      'Ciglane, Sarajevo',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                  ],
+                FutureBuilder<String?>(
+                  future: _fetchFaculty(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return const Text(
+                        'Error loading faculty',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.red,
+                        ),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      return Text(
+                        snapshot.data!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      );
+                    } else {
+                      return const Text(
+                        'No faculty',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 20),
               ],
@@ -108,11 +187,19 @@ class ProfilePage extends StatelessWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildProfileOption(
-                  icon: Icons.person,
-                  text: 'Profile',
-                  onTap: () {},
-                ),
+                if (_userRole == 'admin')
+                  _buildProfileOption(
+                    icon: Icons.admin_panel_settings,
+                    text: 'Admin Dashboard',
+                    onTap: () {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AdminDashboardPage(),
+                      ),
+                    );
+                    },
+                  ),
                 _buildProfileOption(
                   icon: Icons.notifications,
                   text: 'Notifications',
@@ -123,6 +210,19 @@ class ProfilePage extends StatelessWidget {
                   text: 'Edit Profile',
                   onTap: () {},
                 ),
+                if (_userRole == 'user')
+                 _buildProfileOption(
+                  icon: Icons.feedback,
+                  text: 'Feedback',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FeedbackScreen(),
+                      ),
+                    );
+                  },
+                ),                
                 _buildProfileOption(
                   icon: Icons.logout,
                   text: 'Log out',

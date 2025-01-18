@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graduation_project/screens/detailed_post.dart';
+import 'package:graduation_project/screens/edit_post.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -56,6 +57,49 @@ class _PostCardState extends State<PostCard> {
       }
     }
   }
+
+  Future<void> _deletePost(BuildContext context) async {
+  final confirm = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Delete Post'),
+        content: const Text('Are you sure you want to delete this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirm == true) {
+    try {
+      await Supabase.instance.client
+          .from('posts')
+          .delete()
+          .eq('id', widget.postId);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Post deleted successfully!')),
+      );
+
+      if (mounted) {
+        setState(() {}); // Refresh the list or handle UI updates
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting post: $e')),
+      );
+    }
+  }
+}
 
   Future<void> _fetchPost() async {
     try {
@@ -190,10 +234,14 @@ class _PostCardState extends State<PostCard> {
                     icon: const Icon(Icons.more_vert, color: Colors.white),
                     onSelected: (value) {
                       if (value == 'edit') {
-                        //_editPost(context); // Edit the post
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPostScreen(postId: widget.postId),
+                          ),
+                        );
                       } else if (value == 'delete') {
                         _deletePost(context);
-                        // Delete the post
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -277,35 +325,4 @@ class _PostCardState extends State<PostCard> {
       ),
     );
   }
-}
-
-// Function to delete the post
-void _deletePost(BuildContext context) {
-  // Show confirmation dialog before deleting
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: const Text('Delete Post'),
-        content: const Text('Are you sure you want to delete this post?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Post deleted successfully')),
-              );
-              // Implement deletion logic here
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      );
-    },
-  );
 }

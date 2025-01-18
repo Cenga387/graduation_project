@@ -11,6 +11,7 @@ class AttendanceService {
       await supabaseClient.from('potential_attendance').insert({
         'post_id': postId,
         'user_id': userId,
+        'user_email': supabaseClient.auth.currentUser!.email,
       });
     } catch (e) {
       throw 'Error adding to potential attendance: $e';

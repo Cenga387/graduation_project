@@ -12,8 +12,8 @@ class AnnouncementPage extends StatefulWidget {
 }
 
 class _AnnouncementPageState extends State<AnnouncementPage> {
-List<dynamic> posts = [];
-String? _selectedFaculty;
+  List<dynamic> posts = [];
+  String? _selectedFaculty;
   bool isLoading = true;
 
   @override
@@ -21,6 +21,7 @@ String? _selectedFaculty;
     super.initState();
     _fetchPostsByFaculty('All');
   }
+
 // Fetch posts for a specific faculty
   Future<void> _fetchPostsByFaculty(String faculty) async {
     setState(() => isLoading = true);
@@ -43,6 +44,7 @@ String? _selectedFaculty;
       setState(() => isLoading = false);
     }
   }
+
   // Handle faculty button click
   void _onFacultyButtonPressed(String faculty) {
     if (_selectedFaculty == faculty) {
@@ -56,6 +58,14 @@ String? _selectedFaculty;
     }
   }
 
+  Future<void> _refreshPosts() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    await _fetchPostsByFaculty('All');
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -65,7 +75,9 @@ String? _selectedFaculty;
     }
 
     return Scaffold(
-      body: Column(
+        body: RefreshIndicator(
+      onRefresh: _refreshPosts,
+      child: Column(
         children: [
           // Faculty Filter Options
           Padding(
@@ -78,15 +90,25 @@ String? _selectedFaculty;
               physics: const NeverScrollableScrollPhysics(),
               children: [
                 _buildMenuIcon(
-                    label: 'FENS', isSelected: _selectedFaculty == 'FENS', onTap: () => _onFacultyButtonPressed('FENS')),
+                    label: 'FENS',
+                    isSelected: _selectedFaculty == 'FENS',
+                    onTap: () => _onFacultyButtonPressed('FENS')),
                 _buildMenuIcon(
-                    label: 'FLW', isSelected: _selectedFaculty == 'FLW', onTap: () => _onFacultyButtonPressed('FLW')),
+                    label: 'FLW',
+                    isSelected: _selectedFaculty == 'FLW',
+                    onTap: () => _onFacultyButtonPressed('FLW')),
                 _buildMenuIcon(
-                    label: 'FASS', isSelected: _selectedFaculty == 'FASS', onTap: () => _onFacultyButtonPressed('FASS')),
+                    label: 'FASS',
+                    isSelected: _selectedFaculty == 'FASS',
+                    onTap: () => _onFacultyButtonPressed('FASS')),
                 _buildMenuIcon(
-                    label: 'FBA', isSelected: _selectedFaculty == 'FBA', onTap: () => _onFacultyButtonPressed('FBA')),
+                    label: 'FBA',
+                    isSelected: _selectedFaculty == 'FBA',
+                    onTap: () => _onFacultyButtonPressed('FBA')),
                 _buildMenuIcon(
-                    label: 'FEDU', isSelected: _selectedFaculty == 'FEDU', onTap: () => _onFacultyButtonPressed('FEDU')),
+                    label: 'FEDU',
+                    isSelected: _selectedFaculty == 'FEDU',
+                    onTap: () => _onFacultyButtonPressed('FEDU')),
               ],
             ),
           ),
@@ -107,10 +129,10 @@ String? _selectedFaculty;
           ),
         ],
       ),
-    );
+    ));
   }
 
-Widget _buildMenuIcon({
+  Widget _buildMenuIcon({
     required String label,
     required bool isSelected,
     required VoidCallback onTap,
@@ -122,14 +144,16 @@ Widget _buildMenuIcon({
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isSelected ? const Color.fromARGB(255, 0, 53, 94) : const Color(0xFF005597),
+          color: isSelected
+              ? const Color.fromARGB(255, 0, 102, 181)
+              : const Color(0xFF005597),
           boxShadow: isSelected
               ? [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 0, 53, 94).withValues(),
-                    spreadRadius: 2,
+                  const BoxShadow(
+                    color: Color(0xFF005597),
+                    spreadRadius: 1,
                     blurRadius: 5,
-                    offset: const Offset(0, 3), // Shadow position
+                    offset: Offset(0, 2), // Shadow position
                   ),
                 ]
               : [],
