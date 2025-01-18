@@ -6,6 +6,7 @@ import 'home.dart';
 import 'announcements.dart';
 import 'careers.dart';
 import 'profile.dart';
+import 'posts_list_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -84,15 +85,27 @@ class _MainNavigationState extends State<MainNavigation> {
       drawer: _titles[_selectedIndex] == "Announcements"
           ? Drawer(
               child: ListView(
-                children: const [
-                  DrawerHeader(
-                    decoration: BoxDecoration(color: Colors.blue),
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
+                children: [
+                  const SizedBox(
+                    height: 100,
+                    child: DrawerHeader(
+                      decoration: BoxDecoration(color: Color(0xFF005597)),
+                      child: Text(
+                        'Menu',
+                        style: TextStyle(color: Colors.white, fontSize: 24),
+                      ),
                     ),
                   ),
-                  // Add other menu items
+                  _buildDrawerItem(context, 'Announcement (General)'),
+                  _buildDrawerItem(context, 'Announcement (IRO)'),
+                  _buildDrawerItem(context, 'Announcement (SAO)'),
+                  _buildDrawerItem(context, 'Announcement (SCC)'),
+                  _buildDrawerItem(context, 'Announcement (IUS Wolves)'),
+                  _buildDrawerItem(context, 'Event'),
+                  _buildDrawerItem(context, 'Job'),
+                  _buildDrawerItem(context, 'Internship'),
+                  _buildDrawerItem(context, 'Erasmus'),
+                  _buildDrawerItem(context, 'Clubs'),
                 ],
               ),
             )
@@ -136,6 +149,22 @@ class _MainNavigationState extends State<MainNavigation> {
         currentIndex: _selectedIndex,
         onItemSelected: _onItemTapped,
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(BuildContext context, String category) {
+    return ListTile(
+      minTileHeight: 50,
+      title: Text(category, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+      onTap: () {
+        Navigator.pop(context); // Close the drawer
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PostsListPage(category: category),
+          ),
+        );
+      },
     );
   }
 }
