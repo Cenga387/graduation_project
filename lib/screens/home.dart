@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              const PostsListPage(category: 'Internships'),
+                              const PostsListPage(category: 'Internship'),
                         ),
                       )
                     },

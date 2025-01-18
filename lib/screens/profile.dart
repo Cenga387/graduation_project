@@ -18,6 +18,20 @@ class ProfilePage extends StatelessWidget {
     return response['username'] as String?;
   }
 
+  Future<String?> _fetchFaculty() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    if (userId == null) return null;
+
+    final response = await Supabase.instance.client
+        .from('profile')
+        .select('faculty')
+        .eq('user_id', userId)
+        .single();
+
+    return response['faculty'] as String?;
+  }
+
   Future<void> _signOut(BuildContext context) async {
     await Supabase.instance.client.auth.signOut();
 
@@ -39,7 +53,7 @@ class ProfilePage extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/oliver.jpg'),
+                  //backgroundImage: AssetImage('assets/oliver.jpg'),
                 ),
                 const SizedBox(height: 10),
                 FutureBuilder<String?>(
@@ -90,15 +104,37 @@ class ProfilePage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(width: 5),
-                    Text(
-                      'Ciglane, Sarajevo',
-                      style: TextStyle(fontSize: 16, color: Colors.black54),
-                    ),
-                  ],
+                FutureBuilder<String?>(
+                  future: _fetchFaculty(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return const Text(
+                        'Error loading faculty',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.red,
+                        ),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      return Text(
+                        snapshot.data!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      );
+                    } else {
+                      return const Text(
+                        'No faculty',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 20),
               ],

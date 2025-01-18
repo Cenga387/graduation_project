@@ -122,14 +122,14 @@ Widget _buildMenuIcon({
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isSelected ? const Color.fromARGB(255, 0, 53, 94) : const Color(0xFF005597),
+          color: isSelected ? const Color.fromARGB(255, 0, 102, 181) : const Color(0xFF005597),
           boxShadow: isSelected
               ? [
-                  BoxShadow(
-                    color: const Color.fromARGB(255, 0, 53, 94).withValues(),
-                    spreadRadius: 2,
+                  const BoxShadow(
+                    color:   Color(0xFF005597),
+                    spreadRadius: 1,
                     blurRadius: 5,
-                    offset: const Offset(0, 3), // Shadow position
+                    offset: Offset(0, 2), // Shadow position
                   ),
                 ]
               : [],
