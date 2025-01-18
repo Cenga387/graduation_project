@@ -19,6 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final List<String> _faculties = ['FENS', 'FASS', 'FLW', 'FEDU', 'FBA'];
   String _selectedFacultyController = '';
   bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -60,6 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
         await supabase.from('profile').insert({
           'user_id': userId,
           'username': username,
+          'email': email,
           'role': 'user',
           'faculty': faculty,
         });
@@ -93,7 +95,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20.0),
                 child: Form(
+                  key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -139,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your username';
+                            return 'Please enter your full name';
                           }
                           return null;
                         },
@@ -164,7 +166,10 @@ class _RegisterPageState extends State<RegisterPage> {
                             return 'Please enter your email';
                           }
                           if (!value.contains('@')) {
-                            return 'Please enter a valid email';
+                            return 'Email must contain "@"';
+                          }
+                          if (!value.toLowerCase().contains('ius')) {
+                            return 'Email must contain "ius"';
                           }
                           return null;
                         },
@@ -252,7 +257,19 @@ class _RegisterPageState extends State<RegisterPage> {
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : signUp,
+                          onPressed: _isLoading
+                              ? null // Disable button when loading
+                              : () {
+                                  // Validate the form
+                                  if (_formKey.currentState!.validate()) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Processing Data')),
+                                    );
+                                    // Call the signUp function or any other logic
+                                    signUp();
+                                  }
+                                },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
