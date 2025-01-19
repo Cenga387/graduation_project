@@ -73,9 +73,9 @@ class _CareersPageState extends State<CareersPage> {
     }
 
     return Scaffold(
-        body: RefreshIndicator(
-      onRefresh: _refreshPosts,
-      child: ListView(
+      body: RefreshIndicator(
+        onRefresh: _refreshPosts,
+        child: ListView(
           children: [
             // Job Section
             if (categorizedPosts.containsKey('Job'))

@@ -92,7 +92,6 @@ class _EditPostScreenState extends State<EditPostScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,36 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class FeedbackScreen extends StatelessWidget {
+class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final _feedbackController = TextEditingController();
+  State<StatefulWidget> createState() {
+    return _FeedbackScreenState();
+  }
+}
 
-    Future<void> _submitFeedback() async {
-      try {
-        final userId = Supabase.instance.client.auth.currentUser?.id;
+class _FeedbackScreenState extends State<StatefulWidget> {
+  final _feedbackController = TextEditingController();
 
-        if (userId == null) throw 'User not authenticated';
+  @override
+  void dispose() {
+    _feedbackController.dispose();
+    super.dispose();
+  }
+  
+  Future<void> _submitFeedback() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
 
-        await Supabase.instance.client.from('feedback').insert({
-          'user_id': userId,
-          'feedback': _feedbackController.text,
-        });
+      if (userId == null) throw 'User not authenticated';
 
+      await Supabase.instance.client.from('feedback').insert({
+        'user_id': userId,
+        'user_email': Supabase.instance.client.auth.currentUser?.email,
+        'content': _feedbackController.text,
+      });
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Feedback submitted successfully!')),
         );
-
         Navigator.pop(context);
-      } catch (e) {
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error submitting feedback: $e')),
         );
       }
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Feedback'),
@@ -45,8 +61,7 @@ class FeedbackScreen extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'Your Feedback',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(15))
-                ),
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
               ),
             ),
             const SizedBox(height: 20),
