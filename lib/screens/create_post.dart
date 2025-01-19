@@ -177,7 +177,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         QuillSimpleToolbar(
                             controller: _contentController,
                             configurations:
-                                const QuillSimpleToolbarConfigurations(showSubscript: false, showSuperscript: false, showListBullets: false, showListNumbers: false, showQuote: false, showSearchButton: false, showHeaderStyle: false, showCodeBlock: false, showInlineCode: false, showListCheck: false, showClearFormat: false)),
+                                const QuillSimpleToolbarConfigurations(
+                                    showSubscript: false,
+                                    showSuperscript: false,
+                                    showListBullets: false,
+                                    showListNumbers: false,
+                                    showQuote: false,
+                                    showSearchButton: false,
+                                    showHeaderStyle: false,
+                                    showCodeBlock: false,
+                                    showInlineCode: false,
+                                    showListCheck: false,
+                                    showClearFormat: false)),
                         const SizedBox(height: 10),
                         SizedBox(
                           height: 250,

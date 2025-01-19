@@ -52,19 +52,24 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
       if (scannedQRCode == widget.qrCodeRawData) {
         await AttendanceService()
             .markAsAttended(widget.postId); // Mark attendance
-        Navigator.pop(context); // Close scanner
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Attendance marked successfully!')),
-        );
+
+        if (mounted) {
+          Navigator.pop(context); // Close scanner
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Attendance marked successfully!')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Invalid QR code.')),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
       setState(() {
         isScanning = false;

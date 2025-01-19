@@ -57,15 +57,19 @@ class _HomePageState extends State<HomePage> {
       }
 
       // Update state with the categorized posts
-      setState(() {
-        categorizedPosts = postsByCategory;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          categorizedPosts = postsByCategory;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching posts: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

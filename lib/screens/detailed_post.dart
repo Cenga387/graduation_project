@@ -84,55 +84,58 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   }
 
   Future<void> _downloadAttendance() async {
-  try {
-    // Fetch attendance data along with user emails
-    final response = await Supabase.instance.client
-        .from('potential_attendance')
-        .select('user_id, user_email')
-        .eq('post_id', widget.postId);
+    try {
+      // Fetch attendance data along with user emails
+      final response = await Supabase.instance.client
+          .from('potential_attendance')
+          .select('user_id, user_email')
+          .eq('post_id', widget.postId);
 
-    final data = response as List<dynamic>;
+      final data = response as List<dynamic>;
 
-    // Prepare CSV data
-    List<List<String>> csvData = [
-      ['User ID', 'Email'], // Headers
-      ...data.map((record) => [
-            record['user_id'] as String,
-            record['user_email'] as String,
-          ]),
-    ];
+      // Prepare CSV data
+      List<List<String>> csvData = [
+        ['User ID', 'Email'], // Headers
+        ...data.map((record) => [
+              record['user_id'] as String,
+              record['user_email'] as String,
+            ]),
+      ];
 
-    // Convert to CSV format
-    String csv = const ListToCsvConverter().convert(csvData);
+      // Convert to CSV format
+      String csv = const ListToCsvConverter().convert(csvData);
 
-    // Get the Downloads directory
-    Directory? downloadsDirectory;
-    if (Platform.isAndroid) {
-      downloadsDirectory = Directory('/storage/emulated/0/Download');
-    } else if (Platform.isIOS) {
-      downloadsDirectory = await getApplicationDocumentsDirectory();
-    } else {
-      throw 'Unsupported platform';
+      // Get the Downloads directory
+      Directory? downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      } else if (Platform.isIOS) {
+        downloadsDirectory = await getApplicationDocumentsDirectory();
+      } else {
+        throw 'Unsupported platform';
+      }
+
+      final filePath =
+          '${downloadsDirectory.path}/attendance_${widget.postId}.csv';
+      final file = File(filePath);
+
+      // Write the CSV data to the file
+      await file.writeAsString(csv);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Attendance list downloaded to: $filePath')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error downloading attendance: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
-
-    final filePath =
-        '${downloadsDirectory.path}/attendance_${widget.postId}.csv';
-    final file = File(filePath);
-
-    // Write the CSV data to the file
-    await file.writeAsString(csv);
-
-    // Show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Attendance list downloaded to: $filePath')),
-    );
-  } catch (e) {
-    debugPrint('Error downloading attendance: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
 
   Future<void> _fetchQRCodeImageUrl() async {
     try {
@@ -242,13 +245,17 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
       setState(() {
         isUserAttending = true;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You are marked as attending!')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You are marked as attending!')),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     } finally {
       setState(() {
         isLoading = false;

@@ -9,23 +9,17 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      //listen to the auth state change
       stream: Supabase.instance.client.auth.onAuthStateChange,
-      //building the appropriate screen for the current auth state
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold();
         }
 
-        //to check if we have already current session
-
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          //if session is not null then go to home page
           return const MainNavigation();
         } else {
-          // SignInScreen();
           return const WelcomeScreen();
         }
       },

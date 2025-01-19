@@ -30,10 +30,8 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab> {
       // Fetch total users
       final totalUsersResponse = await supabase.from('profile').select('*');
       // Fetch active events
-      final activeEventsResponse = await supabase
-          .from('posts')
-          .select()
-          .eq('category', 'Event');
+      final activeEventsResponse =
+          await supabase.from('posts').select().eq('category', 'Event');
       // Fetch recent feedback
       final recentFeedbackResponse = await supabase
           .from('feedback')
@@ -80,7 +78,7 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab> {
             title: Text(feedback['content']),
             subtitle: Text("From: ${feedback['user_email']}"),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -89,11 +87,12 @@ class _DashboardOverviewTabState extends State<DashboardOverviewTab> {
     return Card(
       color: const Color(0xFF005597),
       child: ListTile(
-      title: Text(title, style: const TextStyle(color: Colors.white)),
-      trailing: Text(
-        value.toString(),
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
-      ),
+        title: Text(title, style: const TextStyle(color: Colors.white)),
+        trailing: Text(
+          value.toString(),
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+        ),
       ),
     );
   }

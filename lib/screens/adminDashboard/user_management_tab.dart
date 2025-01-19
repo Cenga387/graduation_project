@@ -19,53 +19,62 @@ class _UserManagementTabState extends State<UserManagementTab> {
   }
 
   Future<void> _fetchUsers() async {
-  setState(() {
-    isLoading = true;
-  });
-
-  try {
-    final response = await Supabase.instance.client
-        .from('profile')
-        .select('user_id, username, faculty, email, role');
-
-    final List<Map<String, dynamic>> profiles =
-        List<Map<String, dynamic>>.from(response);
-
     setState(() {
-      users = profiles.map((profile) {
-        return {
-          'id': profile['user_id'],
-          'username': profile['username'] ?? 'N/A',
-          'faculty': profile['faculty'] ?? 'N/A',
-          'email': profile['email'] ?? 'N/A',
-          'role': profile['role'] ?? 'N/A',
-        };
-      }).toList();
-      isLoading = false;
+      isLoading = true;
     });
-  } catch (e) {
-    debugPrint('Error fetching users: $e');
-    setState(() {
-      isLoading = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error fetching users: $e')),
-    );
+
+    try {
+      final response = await Supabase.instance.client
+          .from('profile')
+          .select('user_id, username, faculty, email, role');
+
+      final List<Map<String, dynamic>> profiles =
+          List<Map<String, dynamic>>.from(response);
+
+      setState(() {
+        users = profiles.map((profile) {
+          return {
+            'id': profile['user_id'],
+            'username': profile['username'] ?? 'N/A',
+            'faculty': profile['faculty'] ?? 'N/A',
+            'email': profile['email'] ?? 'N/A',
+            'role': profile['role'] ?? 'N/A',
+          };
+        }).toList();
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error fetching users: $e');
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching users: $e')),
+        );
+      }
+    }
   }
-}
 
   Future<void> _deleteUser(String userId) async {
     try {
-      await Supabase.instance.client.from('profile').delete().eq('user_id', userId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User deleted successfully')),
-      );
+      await Supabase.instance.client
+          .from('profile')
+          .delete()
+          .eq('user_id', userId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User deleted successfully')),
+        );
+      }
       _fetchUsers(); // Refresh the user list after deletion
     } catch (e) {
       debugPrint('Error deleting user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error deleting user: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting user: $e')),
+        );
+      }
     }
   }
 
@@ -98,7 +107,8 @@ class _UserManagementTabState extends State<UserManagementTab> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
                                 onPressed: () => _confirmDeleteUser(user['id']),
                               ),
                             ],

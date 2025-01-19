@@ -6,7 +6,8 @@ class PostsListPage extends StatefulWidget {
   final String category;
   final bool isAnnouncement;
 
-  const PostsListPage({super.key, required this.category, this.isAnnouncement = false});
+  const PostsListPage(
+      {super.key, required this.category, this.isAnnouncement = false});
 
   @override
   State<PostsListPage> createState() => _PostsListPageState();
@@ -28,10 +29,8 @@ class _PostsListPageState extends State<PostsListPage> {
 
       // Fetch posts with appropriate filtering
       final response = widget.isAnnouncement
-          ? await supabase
-              .from('posts')
-              .select()
-              .ilike('category', '%Announcement%') // Filter posts containing "Announcement"
+          ? await supabase.from('posts').select().ilike('category',
+              '%Announcement%') // Filter posts containing "Announcement"
           : await supabase
               .from('posts')
               .select()
@@ -58,7 +57,8 @@ class _PostsListPageState extends State<PostsListPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : posts.isEmpty
-              ? const Center(child: Text('No posts available for this category.'))
+              ? const Center(
+                  child: Text('No posts available for this category.'))
               : ListView.builder(
                   itemCount: posts.length,
                   itemBuilder: (context, index) {

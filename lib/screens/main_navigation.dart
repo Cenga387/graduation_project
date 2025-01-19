@@ -155,7 +155,8 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildDrawerItem(BuildContext context, String category) {
     return ListTile(
       minTileHeight: 50,
-      title: Text(category, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+      title: Text(category,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
       onTap: () {
         Navigator.pop(context); // Close the drawer
         Navigator.push(
