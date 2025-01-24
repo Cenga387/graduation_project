@@ -24,7 +24,7 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   bool isUserInAttendance =
       false; // Tracks if the user has confirmed attendance
   bool isUserAttending = false; // Tracks if the user clicked to attend
-  bool isLoading = false; // Tracks loading state
+  bool isLoading = false;
   String? qrCodeImageUrl;
   String? qrCodeRawData;
   String? userRole;
@@ -87,7 +87,7 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
     try {
       // Fetch attendance data along with user emails
       final response = await Supabase.instance.client
-          .from('potential_attendance')
+          .from('attendance')
           .select('user_id, user_email')
           .eq('post_id', widget.postId);
 
@@ -117,6 +117,60 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
 
       final filePath =
           '${downloadsDirectory.path}/attendance_${widget.postId}.csv';
+      final file = File(filePath);
+
+      // Write the CSV data to the file
+      await file.writeAsString(csv);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Attendance list downloaded to: $filePath')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error downloading attendance: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _downloadPotentialAttendance() async {
+    try {
+      // Fetch attendance data along with user emails
+      final response = await Supabase.instance.client
+          .from('potential_attendance')
+          .select('user_id, user_email')
+          .eq('post_id', widget.postId);
+
+      final data = response as List<dynamic>;
+
+      // Prepare CSV data
+      List<List<String>> csvData = [
+        ['User ID', 'Email'], // Headers
+        ...data.map((record) => [
+              record['user_id'] as String,
+              record['user_email'] as String,
+            ]),
+      ];
+
+      // Convert to CSV format
+      String csv = const ListToCsvConverter().convert(csvData);
+
+      // Get the Downloads directory
+      Directory? downloadsDirectory;
+      if (Platform.isAndroid) {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      } else if (Platform.isIOS) {
+        downloadsDirectory = await getApplicationDocumentsDirectory();
+      } else {
+        throw 'Unsupported platform';
+      }
+
+      final filePath =
+          '${downloadsDirectory.path}/potential_attendance_${widget.postId}.csv';
       final file = File(filePath);
 
       // Write the CSV data to the file
@@ -184,28 +238,33 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   }
 
   Future<void> _checkPotentialAttendanceStatus() async {
-    try {
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) throw 'User not authenticated';
+  try {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) throw 'User not authenticated';
 
-      final response = await Supabase.instance.client
-          .from('potential_attendance')
-          .select()
-          .eq('post_id', widget.postId)
-          .eq('user_id', userId)
-          .maybeSingle(); // Fetch single entry or null
+    debugPrint('Checking potential attendance for post_id: ${widget.postId}, user_id: $userId');
 
-      setState(() {
-        isUserAttending = response != null;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      debugPrint('Error checking attendance status: $e');
-    }
+    final response = await Supabase.instance.client
+        .from('potential_attendance')
+        .select()
+        .eq('post_id', widget.postId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    debugPrint('Response from potential_attendance: $response');
+
+    setState(() {
+      isUserAttending = response != null;
+      isLoading = false;
+    });
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    debugPrint('Error checking potential attendance status: $e');
   }
+}
+
 
   // Shows confirmation modal
   void _showAttendConfirmationModal(String postId) {
@@ -326,9 +385,16 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
                     child: const Text('Download Attendance'),
                   ),
                 ],
+                if (userRole == 'admin' && category == 'Event') ...[
+                  ElevatedButton(
+                    onPressed: _downloadPotentialAttendance,
+                    child: const Text('Download Potential Attendance'),
+                  ),
+                ],
                 const SizedBox(height: 16),
+
                 // Conditionally render buttons based on category and attendance
-                if (category == 'Event') ...[
+                if (userRole == 'user' && category == 'Event') ...[
                   if (isUserInAttendance)
                     const Text(
                       'You are attending this event.',
@@ -350,7 +416,7 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
                         );
                       },
                     )
-                  else
+                  else if (!isUserInAttendance || !isUserAttending)
                     ElevatedButton(
                       onPressed: isLoading
                           ? null

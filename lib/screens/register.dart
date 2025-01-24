@@ -166,9 +166,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (!value.contains('@')) {
                             return 'Email must contain "@"';
                           }
-                          // if (!value.toLowerCase().contains('ius')) {
-                          //   return 'Email must contain "ius"';
-                          // }
+                          if (!value.toLowerCase().contains('ius')) {
+                            return 'Email must contain "ius"';
+                          }
                           return null;
                         },
                       ),

@@ -82,7 +82,7 @@ Future<void> _signOut(BuildContext context) async {
     return Scaffold(
       body: Column(
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
           Container(
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -98,7 +98,7 @@ Future<void> _signOut(BuildContext context) async {
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -39,6 +39,24 @@ class AttendanceService {
     }
   }
 
+  Future<bool> isAlreadyMarked(String postId) async {
+    try {
+      final userId = supabaseClient.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
+
+      final response = await supabaseClient
+          .from('attendance')
+          .select()
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      return response != null; // If a record exists, the user is already marked
+    } catch (e) {
+      throw 'Error checking attendance: $e';
+    }
+  }
+
   // Mark the user as attended in the attendance table
   Future markAsAttended(String postId) async {
     try {
@@ -48,6 +66,7 @@ class AttendanceService {
       await supabaseClient.from('attendance').insert({
         'post_id': postId,
         'user_id': userId,
+        'user_email': supabaseClient.auth.currentUser!.email,
         'attended_at': DateTime.now().toIso8601String(),
       });
     } catch (e) {
