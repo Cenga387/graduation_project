@@ -19,6 +19,7 @@ dependencies:
   flutter_quill: ^10.8.5
   url_launcher: ^6.3.1
   csv: ^6.0.0
+  fl_chart: ^0.70.2
 
 dev_dependencies:
   flutter_test:
