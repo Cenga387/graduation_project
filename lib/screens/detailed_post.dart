@@ -21,13 +21,15 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   final AttendanceService _attendanceService = AttendanceService();
   late QuillController _contentController;
 
-  bool isUserInAttendance =
-      false; // Tracks if the user has confirmed attendance
-  bool isUserAttending = false; // Tracks if the user clicked to attend
+  bool isUserInAttendance = false;
+  bool isUserAttending = false;
   bool isLoading = false;
   String? qrCodeImageUrl;
   String? qrCodeRawData;
   String? userRole;
+
+  Map<String, dynamic>? postData;
+  bool isPostLoading = true;
 
   @override
   void initState() {
@@ -37,6 +39,31 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
     _fetchQRCodeImageUrl();
     _checkAttendance();
     _checkPotentialAttendanceStatus();
+    _fetchPostDetails();
+  }
+
+  Future<void> _fetchPostDetails() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('posts')
+          .select()
+          .eq('id', widget.postId)
+          .single();
+
+      if (mounted) {
+        setState(() {
+          postData = response;
+          isPostLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching post details: $e');
+      if (mounted) {
+        setState(() {
+          isPostLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _fetchUserRole() async {
@@ -238,33 +265,33 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
   }
 
   Future<void> _checkPotentialAttendanceStatus() async {
-  try {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) throw 'User not authenticated';
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) throw 'User not authenticated';
 
-    debugPrint('Checking potential attendance for post_id: ${widget.postId}, user_id: $userId');
+      debugPrint(
+          'Checking potential attendance for post_id: ${widget.postId}, user_id: $userId');
 
-    final response = await Supabase.instance.client
-        .from('potential_attendance')
-        .select()
-        .eq('post_id', widget.postId)
-        .eq('user_id', userId)
-        .maybeSingle();
+      final response = await Supabase.instance.client
+          .from('potential_attendance')
+          .select()
+          .eq('post_id', widget.postId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
-    debugPrint('Response from potential_attendance: $response');
+      debugPrint('Response from potential_attendance: $response');
 
-    setState(() {
-      isUserAttending = response != null;
-      isLoading = false;
-    });
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    debugPrint('Error checking potential attendance status: $e');
+      setState(() {
+        isUserAttending = response != null;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      debugPrint('Error checking potential attendance status: $e');
+    }
   }
-}
-
 
   // Shows confirmation modal
   void _showAttendConfirmationModal(String postId) {
@@ -328,109 +355,104 @@ class _DetailedPostScreenState extends State<DetailedPostScreen> {
       appBar: AppBar(
         title: const Text('Post Details'),
       ),
-      body: FutureBuilder(
-        future: Supabase.instance.client
-            .from('posts')
-            .select()
-            .eq('id', widget.postId)
-            .single(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error loading post details.'));
-          }
-
-          final data = snapshot.data as Map<String, dynamic>;
-          final String category =
-              data['category']; // Extract category from the post
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  data['title'],
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                QuillEditor(
-                  focusNode: FocusNode(canRequestFocus: false),
-                  scrollController: ScrollController(),
-                  controller: _contentController,
-                  configurations: const QuillEditorConfigurations(
-                    checkBoxReadOnly: true,
-                    readOnlyMouseCursor: SystemMouseCursors.forbidden,
-                    showCursor: false,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Upvotes: ${data['upvotes']}',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                Text(
-                  'Downvotes: ${data['downvotes']}',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                const SizedBox(height: 16),
-                if (userRole == 'admin' && category == 'Event') ...[
-                  ElevatedButton(
-                    onPressed: _downloadAttendance,
-                    child: const Text('Download Attendance'),
-                  ),
-                ],
-                if (userRole == 'admin' && category == 'Event') ...[
-                  ElevatedButton(
-                    onPressed: _downloadPotentialAttendance,
-                    child: const Text('Download Potential Attendance'),
-                  ),
-                ],
-                const SizedBox(height: 16),
-
-                // Conditionally render buttons based on category and attendance
-                if (userRole == 'user' && category == 'Event') ...[
-                  if (isUserInAttendance)
-                    const Text(
-                      'You are attending this event.',
-                      style: TextStyle(color: Colors.black, fontSize: 20),
-                    )
-                  else if (isUserAttending)
-                    IconButton(
-                      icon: const Icon(Icons.qr_code),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => QRCodeScannerScreen(
-                              postId: widget.postId,
-                              qrCodeImageUrl: qrCodeImageUrl,
-                              qrCodeRawData: qrCodeRawData,
-                            ),
+      body: isPostLoading
+          ? const Center(
+              child: CircularProgressIndicator()) 
+          : postData == null
+              ? const Center(
+                  child:
+                      Text('Error loading post details.')) 
+              : Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          postData!['title'],
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
-                    )
-                  else if (!isUserInAttendance || !isUserAttending)
-                    ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => _showAttendConfirmationModal(widget.postId),
-                      child: isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Attend'),
+                        ),
+                        const SizedBox(height: 16),
+                        QuillEditor(
+                          focusNode: FocusNode(canRequestFocus: false),
+                          scrollController: ScrollController(),
+                          controller: _contentController,
+                          configurations: const QuillEditorConfigurations(
+                            checkBoxReadOnly: true,
+                            readOnlyMouseCursor: SystemMouseCursors.forbidden,
+                            showCursor: false,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Upvotes: ${postData!['upvotes']}',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          'Downvotes: ${postData!['downvotes']}',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        const SizedBox(height: 16),
+                        if (userRole == 'admin' &&
+                            postData!['category'] == 'Event') ...[
+                          ElevatedButton(
+                            onPressed: _downloadAttendance,
+                            child: const Text('Download Attendance'),
+                          ),
+                        ],
+                        if (userRole == 'admin' &&
+                            postData!['category'] == 'Event') ...[
+                          ElevatedButton(
+                            onPressed: _downloadPotentialAttendance,
+                            child: const Text('Download Potential Attendance'),
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+
+                        // Conditionally render buttons based on category and attendance
+                        if (userRole == 'user' &&
+                            postData!['category'] == 'Event') ...[
+                          if (isUserInAttendance)
+                            const Text(
+                              'You are attending this event.',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 20),
+                            )
+                          else if (isUserAttending)
+                            IconButton(
+                              icon: const Icon(Icons.qr_code),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => QRCodeScannerScreen(
+                                      postId: widget.postId,
+                                      qrCodeImageUrl: qrCodeImageUrl,
+                                      qrCodeRawData: qrCodeRawData,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          else if (!isUserInAttendance || !isUserAttending)
+                            ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () => _showAttendConfirmationModal(
+                                      widget.postId),
+                              child: isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Text('Attend'),
+                            ),
+                        ],
+                      ],
                     ),
-                ],
-              ],
-            ),
-          );
-        },
-      ),
+                  ),
+                ),
     );
   }
 }

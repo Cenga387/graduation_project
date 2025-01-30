@@ -96,16 +96,16 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                     ),
                   ),
-                  _buildDrawerItem(context, 'Announcement (General)'),
-                  _buildDrawerItem(context, 'Announcement (IRO)'),
-                  _buildDrawerItem(context, 'Announcement (SAO)'),
-                  _buildDrawerItem(context, 'Announcement (SCC)'),
-                  _buildDrawerItem(context, 'Announcement (IUS Wolves)'),
-                  _buildDrawerItem(context, 'Event'),
-                  _buildDrawerItem(context, 'Job'),
-                  _buildDrawerItem(context, 'Internship'),
-                  _buildDrawerItem(context, 'Erasmus'),
-                  _buildDrawerItem(context, 'Clubs'),
+                  _buildDrawerItem(context, 'Announcement (General)', 'General'),
+                  _buildDrawerItem(context, 'Announcement (IRO)', 'IRO'),
+                  _buildDrawerItem(context, 'Announcement (SAO)', 'SAO'),
+                  _buildDrawerItem(context, 'Announcement (SCC)', 'SCC'),
+                  _buildDrawerItem(context, 'Announcement (IUS Wolves)', 'IUS Wolves'),
+                  _buildDrawerItem(context, 'Event', 'Event'),
+                  _buildDrawerItem(context, 'Job', 'Job'),
+                  _buildDrawerItem(context, 'Internship', 'Internship'),
+                  _buildDrawerItem(context, 'Erasmus', 'Erasmus'),
+                  _buildDrawerItem(context, 'Clubs', 'Clubs'),
                 ],
               ),
             )
@@ -152,10 +152,10 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _buildDrawerItem(BuildContext context, String category) {
+  Widget _buildDrawerItem(BuildContext context, String category, String title) {
     return ListTile(
       minTileHeight: 50,
-      title: Text(category,
+      title: Text(title,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
       onTap: () {
         Navigator.pop(context); // Close the drawer

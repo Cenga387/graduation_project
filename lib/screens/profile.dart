@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graduation_project/screens/adminDashboard/admin_dashboard.dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graduation_project/screens/feedback.dart';
+import 'package:graduation_project/screens/my_event.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -143,10 +144,18 @@ Future<void> _signOut(BuildContext context) async {
                   text: 'Notifications',
                   onTap: () {},
                 ),
+                if (_userRole == 'user')
                 _buildProfileOption(
-                  icon: Icons.edit,
-                  text: 'Edit Profile',
-                  onTap: () {},
+                  icon: Icons.event,
+                  text: 'My events',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MyEventsScreen()
+                      )
+                    );
+                  },
                 ),
                 if (_userRole == 'user')
                   _buildProfileOption(
