@@ -8,9 +8,6 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Welcome to IUS Hub'),
-      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -22,6 +19,17 @@ class WelcomeScreen extends StatelessWidget {
               height: 200,
               fit: BoxFit.fitHeight,
             ),
+          ),
+          const SizedBox(height: 50),
+          const Text(
+            'Welcome to IUS Hub', 
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF005597)),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Stay updated with announcements, events, and internships—all in one place!', 
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF005597)),
           ),
           const Spacer(
             flex: 1,
