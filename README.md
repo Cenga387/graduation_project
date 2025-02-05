@@ -1,16 +1,27 @@
-# graduation_project
+# IUS Hub 📲🎓
 
-A new Flutter project.
+IUS Hub is a mobile application created as part of our graduation project and it is designed to keep students informed and connected with university events, announcements, and resources.
 
-## Getting Started
+## Features 🚀
 
-This project is a starting point for a Flutter application.
+- **User Authentication**: Secure login and registration using Supabase.
+- **Event Management**: View upcoming events, track attendance, and scan QR codes for check-ins.
+- **Notifications**: Stay updated with university announcements.
+- **Profile Customization**: Upload and update profile pictures.
+- **Analytics Dashboard**: Visual insights into user growth, faculty distribution, and post statistics.
+- **Post System**: Upvote, downvote, and categorize posts.
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack 🛠️
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Frontend**: Flutter (Dart)
+- **Backend & Database**: Supabase (PostgreSQL)
+- **State Management**: Provider (or relevant package)
+- **Authentication**: Supabase Auth
+- **QR Code Scanning**: Mobile Scanner
+- **Charts & Analytics**: FL Chart
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Setup Instructions 🏗️
+
+1. Clone the repository:  
+   ```sh
+   git clone https://github.com/yourusername/ius-hub.git
