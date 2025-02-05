@@ -40,12 +40,12 @@ IUS Hub is a mobile application created as part of our graduation project and it
 
 
 ## UI Screenshots
-
-<img src="https://github.com/user-attachments/assets/aa1504ed-1e45-41fe-a8b8-0b237257b780" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/914ff70a-ec80-4ec1-bdc0-a1fdd978585c" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/36a781f1-6047-47b7-bc19-263345c02739" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/0746aa5d-4f9b-4b9c-80c9-9aef9b664307" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/770e979c-d734-475d-b6c7-167e07562982" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/b35ba58b-f4dd-48c5-8dd4-0159d4adf0b0" alt="Screenshot" width="250"/>
-<img src="https://github.com/user-attachments/assets/fdd5e118-284c-4845-8c66-8364b381dd79" alt="Screenshot" width="250"/>
-
+<div align="center">
+   <img src="https://github.com/user-attachments/assets/aa1504ed-1e45-41fe-a8b8-0b237257b780" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/914ff70a-ec80-4ec1-bdc0-a1fdd978585c" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/36a781f1-6047-47b7-bc19-263345c02739" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/0746aa5d-4f9b-4b9c-80c9-9aef9b664307" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/770e979c-d734-475d-b6c7-167e07562982" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/b35ba58b-f4dd-48c5-8dd4-0159d4adf0b0" alt="Screenshot" width="250"/>
+   <img src="https://github.com/user-attachments/assets/fdd5e118-284c-4845-8c66-8364b381dd79" alt="Screenshot" width="250"/>
+</div>
