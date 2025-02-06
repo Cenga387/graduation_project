@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graduation_project/screens/adminDashboard/admin_dashboard.dart.dart';
+import 'package:graduation_project/screens/inbox.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graduation_project/screens/feedback.dart';
 import 'package:graduation_project/screens/my_event.dart';
@@ -143,6 +144,17 @@ Future<void> _signOut(BuildContext context) async {
                   icon: Icons.notifications,
                   text: 'Notifications',
                   onTap: () {},
+                ),
+                _buildProfileOption(
+                  icon: Icons.inbox,
+                  text: 'Inbox',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InboxScreen()
+                      )
+                    );},
                 ),
                 if (_userRole == 'user')
                 _buildProfileOption(

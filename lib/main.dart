@@ -1,10 +1,12 @@
 import 'package:graduation_project/screens/welcome.dart';
+import 'package:provider/provider.dart';
 import 'services/auth_gate.dart';
 import 'screens/home.dart';
 import 'screens/login.dart';
 import 'screens/register.dart';
 import 'screens/create_post.dart';
 import 'package:flutter/material.dart';
+import 'providers/app_data_provider.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,7 +16,12 @@ void main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndneGhoaXFoam95b256ZXp5dXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0MjYwNTEsImV4cCI6MjA0NzAwMjA1MX0.S08QtzHm7J-H-9ZlcFJxhv1i6iX4OKszFkEa8j5com0',
   );
-  runApp(const MyApp());
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppDataProvider()),
+      ],
+      child: const MyApp(),
+    ),);
 }
 
 class MyApp extends StatelessWidget {
