@@ -20,6 +20,7 @@ dependencies:
   url_launcher: ^6.3.1
   csv: ^6.0.0
   fl_chart: ^0.70.2
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

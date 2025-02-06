@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:graduation_project/screens/main_navigation.dart';
 import '../screens/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graduation_project/screens/splash_screen.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -18,7 +18,7 @@ class AuthGate extends StatelessWidget {
         final session = snapshot.hasData ? snapshot.data!.session : null;
 
         if (session != null) {
-          return const MainNavigation();
+          return const SplashScreen();
         } else {
           return const WelcomeScreen();
         }
